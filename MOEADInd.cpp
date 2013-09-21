@@ -2,13 +2,13 @@
 #include "MOEADInd.h"
 #include "Chart.h"
 
-extern Fitness fit[1000] ;
+
 
 CIndividual::CIndividual()
 {
 	//x_var = vector<int>(nvar, 0);
-	y_obj = vector<double>(nobj, 0);
-	rank = 1;
+	y_obj = vector<double>(N_OBJ, 0);
+	//rank = 1;
 }
 
 CIndividual::~CIndividual()
@@ -56,9 +56,9 @@ void CIndividual::obj_eval( const int& index )
 {
 	int n = this->x_var.size() ;
 
-	double A = evaluate_length(n) ;
-	double B = evaluate_smoothness(n) ;
-	double C = evaluate_security(n) ;
+	double length_fitness = evaluate_length(n) ;
+	double smoothness_fitness = evaluate_smoothness(n) ;
+	double security_fitness = evaluate_security(n) ;
 
 	int D = 0;
 	int curX, curY, nextX, nextY ;
@@ -137,28 +137,28 @@ void CIndividual::obj_eval( const int& index )
 	}
 
 	double len = sqrt((double)( (chart_width-1) * (chart_width-1)*2) );
-	fit[index].A = len/A;
+	fit.length_fitness = len/length_fitness;
 
-	if(B == 0)
-		fit[index].B = 1;
+	if(smoothness_fitness == 0)
+		fit.smoothness_fitness = 1;
 	else
-		fit[index].B = 1/B;
+		fit.smoothness_fitness = 1/smoothness_fitness;
 
-	if(C == 0)
-		fit[index].C = 0;
+	if(security_fitness == 0)
+		fit.security_fitness = 0;
 	else
-		fit[index].C = 1/C;
+		fit.security_fitness = 1/security_fitness;
 
-	y_obj[2] = A + 100000*D;					//长度
-	y_obj[1] = B + 100000*D;		    		//平滑度
-	y_obj[0] = -C + 100000*D;					//安全性
+	y_obj[2] = length_fitness + EVAL_WEIGHT*D;					//长度
+	y_obj[1] = smoothness_fitness + EVAL_WEIGHT*D;		    		//平滑度
+	y_obj[0] = -security_fitness + EVAL_WEIGHT*D;					//安全性
 
 	return;
 }
 
 double CIndividual::evaluate_length(const int& n ) {
 
-	double A = 0.0 ;
+	double length_fitness = 0.0 ;
 
 	//#对长度的评价
 	for ( int j = 1; j < n; j++ ){
@@ -169,15 +169,15 @@ double CIndividual::evaluate_length(const int& n ) {
 		y1 = x_var[j-1] / chart_width ;
 		x2 = x_var[j] % chart_width ;
 		y2 = x_var[j] / chart_width ;
-		A += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//两点之间的距离
+		length_fitness += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//两点之间的距离
 	}
 
-	return A ;
+	return length_fitness ;
 }
 
 double CIndividual::evaluate_smoothness(const int& n ) {
 
-	double B = 0.0 ;
+	double smoothness_fitness = 0.0 ;
 
 	//#对个体光滑度的评价 
 	for (int j = 1; j < n-1; j++){
@@ -204,15 +204,15 @@ double CIndividual::evaluate_smoothness(const int& n ) {
 
 		angle = (vectorx1*vectorx2+vectory1*vectory2) / (len1*len2);//计算向量的夹角
 		angle = acos(angle);
-		B += angle;
+		smoothness_fitness += angle;
 	}
 
-	return B ;
+	return smoothness_fitness ;
 }
 
 double CIndividual::evaluate_security(  const int& n  ){
 
-	double C = 0.0 ;
+	double security_fitness = 0.0 ;
 
 	//#对个体安全性的评价
 	for(int j = 0; j < n-1; ++j){
@@ -249,10 +249,10 @@ double CIndividual::evaluate_security(  const int& n  ){
 				L = -L;
 
 		}
-		C = L / vecChart.size();
+		security_fitness = L / vecChart.size();
 	}
 
-	return C ;
+	return security_fitness ;
 }
 
 bool CIndividual::check( CIndividual const* ind, const int& i )
@@ -267,7 +267,7 @@ bool CIndividual::check( CIndividual const* ind, const int& i )
 //
 //void CIndividual::show_objective()
 //{
-//	for(int n=0; n<nobj; n++)
+//	for(int n=0; n<N_OBJ; n++)
 //		printf("%f ",y_obj[n]);
 //	printf("\n");
 //}
@@ -283,13 +283,13 @@ void CIndividual::operator=(const CIndividual &ind2)
 {
 	x_var = ind2.x_var;
 	y_obj = ind2.y_obj;
-	rank  = ind2.rank;
+	//rank  = ind2.rank;
 }
 
 bool CIndividual::operator<(const CIndividual &ind2)
 {
 	bool dominated = true;
-	for(int n=0; n<nobj; n++)
+	for(int n=0; n<N_OBJ; n++)
 	{
 		if(ind2.y_obj[n]<y_obj[n]) return false;
 	}
@@ -301,7 +301,7 @@ bool CIndividual::operator<(const CIndividual &ind2)
 bool CIndividual::operator<<(const CIndividual &ind2)
 {
 	bool dominated = true;
-	for(int n=0; n<nobj; n++)
+	for(int n=0; n<N_OBJ; n++)
 	{
 		if(ind2.y_obj[n]<y_obj[n]  - 0.0001) return false;
 	}
@@ -326,7 +326,7 @@ TCompare CIndividual::Compare(CIndividual& ind2) {
 		if(ind2.y_obj[i] < y_obj[i])
 			bWorse = true;
 		i++;
-	}while (!(bWorse && bBetter) && (i < nobj));
+	}while (!(bWorse && bBetter) && (i < N_OBJ));
 	if (bWorse) {
 		if (bBetter)
 			return _Pareto_Nondominated;

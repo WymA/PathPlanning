@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "Robot.h"
-
 #include "RobotDoc.h"
 #include "RobotView.h"
 #include "MainFrm.h"
@@ -11,6 +10,8 @@
 #include "SetPara.h"
 #include "MyGA.h"
 #include "string.h"
+#include "SNGA.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -53,7 +54,7 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CRobotView construction/destruction
-extern struct Fitness fit[1000];
+
 CRobotView::CRobotView()
 {
 	// TODO: add construction code here
@@ -115,23 +116,9 @@ void CRobotView::OnDraw(CDC* pDC)
 
 			if(pDoc->GARoad->m_bAlreadyStarted){
 
-				red = 255;
-				green = 0;
-				blue = 0;
-				m_PathColor = RGB(red,green,blue);
-				DrawPath(pDC, &(path_security), m_PathColor);//NULL  pDoc->GARoad->curBestGenome->genVec
-
-				red = 0;
-				green = 0;
-				blue = 255;
-				m_PathColor = RGB(red,green,blue);
-				DrawPath(pDC, &(path_smoothness), m_PathColor);
-
-				red = 0;
-				green = 255;
-				blue = 0;
-				m_PathColor = RGB(red,green,blue);
-				DrawPath(pDC, &(path_length), m_PathColor);
+				DrawPath(pDC, &(path_security), COLOR_SECURITY_RED );//NULL  pDoc->GARoad->curBestGenome->genVec
+				DrawPath(pDC, &(path_smoothness), COLOR_SMOOTHNESS_BLUE );
+				DrawPath(pDC, &(path_length), COLOR_LENGTH_GREEN );
 			}
 		}
 
@@ -149,28 +136,29 @@ void CRobotView::OnDraw(CDC* pDC)
 					DrawPath(pDC, &(pDoc->MOEAD->population[i].indiv.x_var ), m_PathColor);
 				}
 
-				red = 255;
-				green = 0;
-				blue = 0;
-				m_PathColor = RGB(red,green,blue);
-				DrawPath(pDC, &(path_security), m_PathColor);//NULL  pDoc->GARoad->curBestGenome->genVec
-
-				red = 0;
-				green = 0;
-				blue = 255;
-				m_PathColor = RGB(red,green,blue);
-				DrawPath(pDC, &(path_smoothness), m_PathColor);
-
-				red = 0;
-				green = 255;
-				blue = 0;
-				m_PathColor = RGB(red,green,blue);
-				DrawPath(pDC, &(path_length), m_PathColor);
+				DrawPath(pDC, &(path_security), COLOR_SECURITY_RED );//NULL  pDoc->GARoad->curBestGenome->genVec
+				DrawPath(pDC, &(path_smoothness), COLOR_SMOOTHNESS_BLUE );
+				DrawPath(pDC, &(path_length), COLOR_LENGTH_GREEN );
 			}
 		}
 		break ;
 	case CAEA:
 		{
+			if( pDoc->CAEA->m_is_run ){
+
+				for(int i=0;i<pDoc->CAEA->population_size;i++){
+
+					red = (20*i)%256;
+					green = 0;//(50*i)%256;
+					blue = (80*i)%256;
+					m_PathColor = RGB(red,green,blue);
+					DrawPath(pDC, &(pDoc->CAEA->sector_population[i].x_var ), m_PathColor);
+				}
+
+				DrawPath(pDC, &(path_security), COLOR_SECURITY_RED );//NULL  pDoc->GARoad->curBestGenome->genVec
+				DrawPath(pDC, &(path_smoothness), COLOR_SMOOTHNESS_BLUE );
+				DrawPath(pDC, &(path_length), COLOR_LENGTH_GREEN );
+			}
 		}
 		break ;
 	}
@@ -238,8 +226,7 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 		pDC->MoveTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);
 		pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth-10,originY+chart_height*gridWidth-5);
 		pDC->TextOut(chart_width*gridWidth+155+chart_height*gridWidth,originY+chart_height*gridWidth+10,"平滑度适应度（优）");
-		for(int i=0; i<cur_parameter.pSize;i++)
-			pDC->TextOut(chart_width*gridWidth+250+fit[i].B*250,originY+chart_height*gridWidth-fit[i].A*250,"*");//画帕累托图
+		pDC->TextOut(chart_width*gridWidth+250+fit.smoothness_fitness*250,originY+chart_height*gridWidth-fit.length_fitness*250,"*");//画帕累托图
 	}
 	else if(cur_parameter.security)
 	{
@@ -258,7 +245,7 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 		pDC->MoveTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth-10,originY+chart_height*gridWidth-5);
 		pDC->TextOut(chart_width*gridWidth+155+chart_height*gridWidth,originY+chart_height*gridWidth+10,"安全性适应度（优）");
 		for(int i=0; i<cur_parameter.pSize;i++)
-			pDC->TextOut(chart_width*gridWidth+250+(1-fit[i].C)*250,originY+chart_height*gridWidth-fit[i].A*250,"*");//画帕累托图
+			pDC->TextOut(chart_width*gridWidth+250+(1-fit.security_fitness)*250,originY+chart_height*gridWidth-fit.length_fitness*250,"*");//画帕累托图
 	}
 	
 	COLORREF oldColor = pDC->SetTextColor(RGB(100,100,100));//设置文本字体的颜色
@@ -393,6 +380,10 @@ UINT ThreadFunc(LPVOID pParam)
 		}
 		break ;
 	case CAEA :
+		{
+			CSNGA * caea = pDoc->CAEA ;
+			caea->execute(m_CurView) ;
+		}
 		break ;
 	}
 
@@ -588,6 +579,7 @@ void CRobotView::ShowPara(CDC* pDC)
 		break ;
 	case CAEA:
 		{
+			num_generation = pDoc->CAEA->cur_gen ;
 		}
 		break ;
 	}
@@ -617,21 +609,21 @@ void CRobotView::ShowPara(CDC* pDC)
 	pDC->TextOut(startX+120,startY,cur_generation);
 	cur_generation.Format(_T("%d"), num_generation );
 	pDC->TextOut(startX+120,startY+30,cur_generation);
-	cur_generation.Format(_T("%.3f"),fit[0].A);
+	cur_generation.Format(_T("%.3f"),fit.length_fitness);
 	pDC->TextOut(startX+120,startY+60,cur_generation);
-	cur_generation.Format(_T("%.3f"),fit[0].B);
+	cur_generation.Format(_T("%.3f"),fit.smoothness_fitness);
 	pDC->TextOut(startX+120,startY+90,cur_generation);
-	cur_generation.Format(_T("%.3f"),fit[0].C);
+	cur_generation.Format(_T("%.3f"),fit.security_fitness);
 	pDC->TextOut(startX+120,startY+120,cur_generation);
-	CPen m_ChartPen1(PS_SOLID,1,RGB(0,0,255));//设置划线的颜色
+	CPen m_ChartPen1(PS_SOLID,1,COLOR_LENGTH_GREEN);//设置划线的颜色
 	pDC->SelectObject (&m_ChartPen1);
 	pDC->MoveTo(startX+120,startY+170);
 	pDC->LineTo(startX+170,startY+170);
-	CPen m_ChartPen2(PS_SOLID,1,RGB(0,255,0));//设置划线的颜色
+	CPen m_ChartPen2(PS_SOLID,1,COLOR_SMOOTHNESS_BLUE);//设置划线的颜色
 	pDC->SelectObject (&m_ChartPen2);
 	pDC->MoveTo(startX+120,startY+200);
 	pDC->LineTo(startX+170,startY+200);
-	CPen m_ChartPen3(PS_SOLID,1,RGB(255,0,0));//设置划线的颜色
+	CPen m_ChartPen3(PS_SOLID,1,COLOR_SECURITY_RED);//设置划线的颜色
 	pDC->SelectObject (&m_ChartPen3);
 	pDC->MoveTo(startX+120,startY+230);
 	pDC->LineTo(startX+170,startY+230);

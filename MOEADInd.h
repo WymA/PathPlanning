@@ -24,7 +24,7 @@ public:
 
 	vector <int> x_var ;
 	vector <double> y_obj ;
-	int    rank;
+	//int    rank;
 	//int    count;
 
 	void   rnd_init();

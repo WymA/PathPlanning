@@ -23,8 +23,6 @@ using namespace std;
 //#define max(a, b) ((a > b) ? a : b)
 //#define min(a, b) ((a < b) ? a : b)
 
-Fitness fit[1000];
-Para cur_parameter;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -37,7 +35,7 @@ MyGA::MyGA(Para &param)
 	curGenNum = 0;
 	//初始化参数
 	Init(param);
-	nobj = 3;
+	N_OBJ = 3;
 	//InitChart() ;
 	//初始化int **chart
 	//chart = new int* [chart_height];
@@ -591,7 +589,7 @@ void MyGA::Evaluate(population *pop)
 //对个体进行评估
 void MyGA::EvaluateInd(individual &ind, int index )
 {
-	double A = 0.0, B = 0.0, C = 0.0;
+	double length_fitness = 0.0, smoothness_fitness = 0.0, security_fitness = 0.0;
 	int n = ind.xPath.size() ;
 
 	//#对长度的评价
@@ -603,7 +601,7 @@ void MyGA::EvaluateInd(individual &ind, int index )
 		y1 = ind.xPath[j-1] / chart_width ;
 		x2 = ind.xPath[j] % chart_width ;
 		y2 = ind.xPath[j] / chart_width ;
-		A += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//两点之间的距离
+		length_fitness += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//两点之间的距离
 	}
 
 	//#对个体光滑度的评价 
@@ -631,7 +629,7 @@ void MyGA::EvaluateInd(individual &ind, int index )
 
 		angle = (vectorx1*vectorx2+vectory1*vectory2)/(len1*len2);//计算向量的夹角
 		angle = acos(angle);
-		B += angle;
+		smoothness_fitness += angle;
 	}
 
 	//#对个体安全性的评价
@@ -669,7 +667,7 @@ void MyGA::EvaluateInd(individual &ind, int index )
 				L = -L;
 
 		}
-		C = L / vecChart.size();
+		security_fitness = L / vecChart.size();
 	}
 
 	int D = 0;
@@ -734,21 +732,21 @@ void MyGA::EvaluateInd(individual &ind, int index )
 	}
 
 	double len = sqrt((double)( (chart_width-1) * (chart_width-1)*2) );
-	fit[index].A = len/A;
+	fit.length_fitness = len/length_fitness;
 
-	if(B == 0)
-		fit[index].B = 1;
+	if(smoothness_fitness == 0)
+		fit.smoothness_fitness = 1;
 	else
-		fit[index].B = 1/B;
+		fit.smoothness_fitness = 1/smoothness_fitness;
 
-	if(C == 0)
-		fit[index].C = 0;
+	if(security_fitness == 0)
+		fit.security_fitness = 0;
 	else
-		fit[index].C = 1/C;
+		fit.security_fitness = 1/security_fitness;
 
-	ind.obj[2] = A + 100000*D;//长度
-	ind.obj[1] = B + 100000*D;//平滑度
-	ind.obj[0] = -C + 100000*D;//安全性
+	ind.obj[2] = length_fitness + EVAL_WEIGHT*D;//长度
+	ind.obj[1] = smoothness_fitness + EVAL_WEIGHT*D;//平滑度
+	ind.obj[0] = -security_fitness + EVAL_WEIGHT*D;//安全性
 
 	return;
 }
@@ -872,9 +870,9 @@ void MyGA::assign_crowding_distance_list(population *pop, list *lst, int front_s
 	int i,j;
 	list *temp;
 	temp = lst;
-	obj_array = new int*[nobj];
+	obj_array = new int*[N_OBJ];
 	dist = new int[front_size];
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 		obj_array[i] = new int[front_size];
 	for(j = 0; j < front_size; ++j)
 	{
@@ -883,7 +881,7 @@ void MyGA::assign_crowding_distance_list(population *pop, list *lst, int front_s
 	}
 	assign_crowding_distance(pop, dist, obj_array, front_size);
 	delete dist;
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 		delete obj_array[i];
 	delete obj_array;
 }
@@ -896,10 +894,10 @@ void MyGA::assign_crowding_distance_indices(population *pop, int c1, int c2)
 	int i, j;
 	int front_size;
 	front_size = c2 - c1 +1;
-	obj_array = new int*[nobj];
+	obj_array = new int*[N_OBJ];
 	dist = new int[front_size];
 
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 		obj_array[i] = new int[front_size];
 
 	for(j = 0; j < front_size; ++j)
@@ -908,7 +906,7 @@ void MyGA::assign_crowding_distance_indices(population *pop, int c1, int c2)
 	assign_crowding_distance(pop, dist, obj_array, front_size);
 	delete dist;
 
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 		delete obj_array[i];
 
 	delete obj_array;
@@ -918,7 +916,7 @@ void MyGA::assign_crowding_distance(population *pop, int *dist, int **obj_array,
 {
 	int i, j;
 
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 	{
 		for(j = 0; j < front_size; ++j)
 			obj_array[i][j] = dist[j];
@@ -928,10 +926,10 @@ void MyGA::assign_crowding_distance(population *pop, int *dist, int **obj_array,
 	for(j = 0; j < front_size; ++j)
 		pop->ind[dist[j]].crowd_dist = 0.0;
 
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 		pop->ind[obj_array[i][0]].crowd_dist = INF;
 
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 	{
 		for(j = 1; j < front_size-1; ++j)
 		{
@@ -948,7 +946,7 @@ void MyGA::assign_crowding_distance(population *pop, int *dist, int **obj_array,
 	for(j = 0; j < front_size; ++j)
 	{
 		if(pop->ind[dist[j]].crowd_dist != INF)
-			pop->ind[dist[j]].crowd_dist = (pop->ind[dist[j]].crowd_dist)/nobj;
+			pop->ind[dist[j]].crowd_dist = (pop->ind[dist[j]].crowd_dist)/N_OBJ;
 	}
 
 }
@@ -959,7 +957,7 @@ int MyGA::check_dominance(individual *a, individual *b)
 	flag1 = 0;
 	flag2 = 0;
 
-	for(i = 0; i < nobj; ++i){
+	for(i = 0; i < N_OBJ; ++i){
 
 		if(a->obj[i] < b->obj[i] ){
 
@@ -1182,7 +1180,7 @@ void MyGA::copy_ind(individual *ind1, individual *ind2)
 	for(i = 0; i < ind1->xPath.size(); ++i)
 		ind2->xPath.push_back(ind1->xPath[i]);
 
-	for(i = 0; i < nobj; ++i)
+	for(i = 0; i < N_OBJ; ++i)
 		ind2->obj[i] = ind1->obj[i];
 	return;
 }
@@ -1267,7 +1265,7 @@ void MyGA::allocate_memory_pop( population *pop, int size )
 	//int i;
 	pop->ind = new individual[size];
 	for( int i = 0; i < size; ++i )
-		pop->ind[i].obj = new double[nobj];
+		pop->ind[i].obj = new double[N_OBJ];
 	return ;
 }
 
@@ -1285,7 +1283,7 @@ void MyGA::report_pop(population *pop, FILE *fpt, int popSize)
 	//int i, j;
 	for ( int i=0; i<popSize; i++ ){
 
-		for ( int j=0; j<nobj; j++ ){
+		for ( int j=0; j<N_OBJ; j++ ){
 
 			fprintf(fpt,"%e\t",pop->ind[i].obj[j]);
 		}
@@ -1324,19 +1322,19 @@ int MyGA::gamain(CRobotView* m_myView)
 
 		exit(1);
 	}
-	this->nobj = 3;
+	this->N_OBJ = 3;
 
 	////////////////////////////////////////////////////////////////
 	//#Do sth. about file output////////////////////////////////
 
 	fprintf(fpt4, "\n Population size = %d", popSize);
 	fprintf(fpt4, "\n Number of generations = %d", GenNum);
-	fprintf(fpt4, "\n Number of objective functions = %d", nobj);
+	fprintf(fpt4, "\n Number of objective functions = %d", N_OBJ);
 	fprintf(fpt4, "\n Probability of crossover of real variable = %e", Pc);
 	fprintf(fpt4, "\n Probability of mutation of real variable = %e", Pm);
-	fprintf(fpt1, "# of objectives = %d\n", nobj);
-	fprintf(fpt2, "# of objectives = %d\n", nobj);
-	fprintf(fpt3, "# of objectives = %d\n", nobj);
+	fprintf(fpt1, "# of objectives = %d\n", N_OBJ);
+	fprintf(fpt2, "# of objectives = %d\n", N_OBJ);
+	fprintf(fpt3, "# of objectives = %d\n", N_OBJ);
 	////////////////////////////////////////////////////////////////
 
 	//#Allocate memory to population with population size 
@@ -1380,7 +1378,7 @@ int MyGA::gamain(CRobotView* m_myView)
 	int dstTime, srcTime;
 
 	for( curGenNum = 2; curGenNum <= GenNum; ++curGenNum ){	
-		//#Begin with curGenNum=2; A big loop
+		//#Begin with curGenNum=2; length_fitness big loop
 
 		////////////////////////////////////////////////////////////////////////////
 		//#Evolving//////////////////////////////////////////////////////////////

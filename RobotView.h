@@ -16,6 +16,10 @@ const int NSGA2 = 0 ;
 const int MOEAD = 1 ;
 const int CAEA = 2 ;
 
+const COLORREF COLOR_LENGTH_GREEN = RGB( 0, 255, 0 ) ;
+const COLORREF COLOR_SMOOTHNESS_BLUE = RGB( 0, 0, 255 ) ;
+const COLORREF COLOR_SECURITY_RED = RGB( 255, 0, 0 ) ;
+
 
 class CRobotView : public CView
 {
@@ -103,6 +107,6 @@ inline CRobotDoc* CRobotView::GetDocument()
 /////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual security_fitness++ will insert additional declarations immediately before the previous line.
 
 #endif // !defined(AFX_ROBOTVIEW_H__E17FE45E_076B_4A19_8BBB_86632A16E4EF__INCLUDED_)

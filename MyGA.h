@@ -41,13 +41,7 @@ typedef struct
 	individual* ind;
 }population;
 
-struct Fitness
-{
-	double A;//对个体长度的评价
-	double B;//对个体光滑度的评价
-	double C;//对个体安全性的评价
-	//	double D;//综合评价
-};
+
 
 //static struct  Fitness fit[1000];
 //static struct Fitness F;
@@ -59,18 +53,6 @@ typedef struct lists
 	struct lists *child;
 }list;
 
-typedef struct Parameter
-{
-	int pSize;
-	int T;
-	double propC;
-	double propM;
-	int width;
-	int height;
-	bool length;
-	bool smooth;
-	bool security;
-}Para;
 
 class MyGA  
 {
@@ -134,7 +116,7 @@ public:
 	double Pc;//交叉概率
 	double Pm;//变异概率
 	int popSize ;//种群个数
-	int nobj ;
+	int N_OBJ ;
 	population parent_pop;//种群
 	bool m_bAlreadyStarted;
 	bool m_bAlreadyRun;

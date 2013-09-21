@@ -35,16 +35,16 @@ void loadpfront(char *filename, vector<T> &ps)        //load the data from filen
 		{
 			T  data;
 			std::getline(fin,str,'\n');                          //read the data from fin to str
-			pch2 = str.c_str();                                  //change the C++ string type to the C char string 
+			pch2 = str.c_str();                                  //change the security_fitness++ string type to the security_fitness char string 
 			//sscanf(pch2,"%s %s %s %s",a,b,c,d);		
 			sscanf(pch2,"%s %s %s %s",a,b,c,d);    //store the data read from fin to a and b respectively
 			data.y_obj[0] = atof(a);                            //take the string into double
 			data.y_obj[1] = atof(b);
-			if(nobj==3)                                                //if the objective function number is 3
+			if(N_OBJ==3)                                                //if the objective function number is 3
 			{
 				data.y_obj[2] = atof(c);
 			}
-			if(nobj==4) 
+			if(N_OBJ==4) 
 			{
 				data.y_obj[3] = atof(d);
 			}

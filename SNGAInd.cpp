@@ -4,9 +4,6 @@
 //#include "cec09.h"
 #include "SNGAInd.h"
 
-extern int divide;
-extern Fitness fit[1000] ;
-
 CSNGAInd::CSNGAInd()
 {
 	///////////////////////////////////////////////
@@ -14,11 +11,13 @@ CSNGAInd::CSNGAInd()
 	//for( int i = 0 ; i < nvar ; i++ )
 	//	x_var.push_back(0.0);
 	///////////////////////////////////////////////
-	for( int j = 0 ; j < nobj; j++)
+	for( int j = 0 ; j < N_OBJ; j++)
 		y_obj.push_back(0.0 ) ;
 
-	//for(int j=0; j<nobj-1; j++)
+	//for(int j=0; j<N_OBJ-1; j++)
 	sectorialangle = 0;//.push_back(0.0);
+	is_pass = false ;
+	//rank = 1 ;
 }
 
 CSNGAInd::~CSNGAInd()
@@ -71,9 +70,9 @@ void CSNGAInd::obj_eval( const int& index )                                     
 {
 	int n = this->x_var.size() ;
 
-	double A = evaluate_length(n) ;
-	double B = evaluate_smoothness(n) ;
-	double C = evaluate_security(n) ;
+	double length_fitness = evaluate_length(n) ;
+	double smoothness_fitness = evaluate_smoothness(n) ;
+	double security_fitness = evaluate_security(n) ;
 
 	int D = 0;
 	int curX, curY, nextX, nextY ;
@@ -137,7 +136,8 @@ void CSNGAInd::obj_eval( const int& index )                                     
 				if(y2<y1&&kY<=kX) nextY--;
 			}
 			if( nextY >= 0 && //#Added on 2013/9/11
-				chart[nextY][nextX] == 1)//如果通过了障碍物
+				nextX >= 0 && //#Added on 2013/9/21
+				chart[nextY][nextX] == 1 )//如果通过了障碍物
 				D++;
 			curX = nextX; curY = nextY;
 			count++;
@@ -152,21 +152,25 @@ void CSNGAInd::obj_eval( const int& index )                                     
 	}
 
 	double len = sqrt((double)( (chart_width-1) * (chart_width-1)*2) );
-	fit[index].A = len/A;
+	fit.length_fitness = len/length_fitness;
 
-	if(B == 0)
-		fit[index].B = 1;
+	if(smoothness_fitness == 0)
+		fit.smoothness_fitness = 1;
 	else
-		fit[index].B = 1/B;
+		fit.smoothness_fitness = 1/smoothness_fitness;
 
-	if(C == 0)
-		fit[index].C = 0;
+	if(security_fitness == 0)
+		fit.security_fitness = 0;
 	else
-		fit[index].C = 1/C;
+		fit.security_fitness = 1/security_fitness;
 
-	y_obj[2] = A + 100000*D;					//长度
-	y_obj[1] = B + 100000*D;		    		//平滑度
-	y_obj[0] = -C + 100000*D;					//安全性
+	y_obj[LENGTH] = length_fitness + EVAL_WEIGHT*D;					//长度
+	y_obj[SMOOTHNESS] = smoothness_fitness + EVAL_WEIGHT*D;		    		//平滑度
+	y_obj[SECURITY] = -security_fitness + EVAL_WEIGHT*D;					//安全性
+
+	if ( D == 0 ) {
+		is_pass = true ;
+	}
 
 	return;
 }
@@ -174,7 +178,7 @@ void CSNGAInd::obj_eval( const int& index )                                     
 
 double CSNGAInd::evaluate_length(const int& n ) {
 
-	double A = 0.0 ;
+	double length_fitness = 0.0 ;
 
 	//#对长度的评价
 	for ( int j = 1; j < n; j++ ){
@@ -185,15 +189,15 @@ double CSNGAInd::evaluate_length(const int& n ) {
 		y1 = x_var[j-1] / chart_width ;
 		x2 = x_var[j] % chart_width ;
 		y2 = x_var[j] / chart_width ;
-		A += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//两点之间的距离
+		length_fitness += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//两点之间的距离
 	}
 
-	return A ;
+	return length_fitness ;
 }
 
 double CSNGAInd::evaluate_smoothness(const int& n ) {
 
-	double B = 0.0 ;
+	double smoothness_fitness = 0.0 ;
 
 	//#对个体光滑度的评价 
 	for (int j = 1; j < n-1; j++){
@@ -220,15 +224,15 @@ double CSNGAInd::evaluate_smoothness(const int& n ) {
 
 		angle = (vectorx1*vectorx2+vectory1*vectory2) / (len1*len2);//计算向量的夹角
 		angle = acos(angle);
-		B += angle;
+		smoothness_fitness += angle;
 	}
 
-	return B ;
+	return smoothness_fitness ;
 }
 
 double CSNGAInd::evaluate_security(  const int& n  ){
 
-	double C = 0.0 ;
+	double security_fitness = 0.0 ;
 
 	//#对个体安全性的评价
 	for(int j = 0; j < n-1; ++j){
@@ -265,10 +269,10 @@ double CSNGAInd::evaluate_security(  const int& n  ){
 				L = -L;
 
 		}
-		C = L / vecChart.size();
+		security_fitness = L / vecChart.size();
 	}
 
-	return C ;
+	return security_fitness ;
 }
 
 
@@ -284,9 +288,9 @@ bool CSNGAInd::check( CSNGAInd const* ind, const int& i )
 //void CSNGAInd::show_objective()
 //{
 //
-//	for(int n=0;n<nobj;n++)
+//	for(int n=0;n<N_OBJ;n++)
 //		std::cout<<y_obj[n]<<" ";
-//	//	for(int n=0;n<nobj-1;n++)
+//	//	for(int n=0;n<N_OBJ-1;n++)
 //	std::cout<<sectorialindex<<" ";
 //	//std::cout<<rank<<" ";
 //	std::cout<<"\n";
@@ -303,12 +307,12 @@ bool CSNGAInd::check( CSNGAInd const* ind, const int& i )
 //	//double angle,distance;
 //
 //	double obj_relative_sum = 0.0;
-//	for(int j=0; j<nobj; j++)
+//	for(int j=0; j<N_OBJ; j++)
 //	{
 //		obj_relative_sum += y_obj[j] - (observerpoint[j] );
 //	}
 //
-//	//for(int j=0; j<nobj; j++)
+//	//for(int j=0; j<N_OBJ; j++)
 //	{
 //
 //		if(obj_relative_sum!=0)
@@ -323,7 +327,7 @@ bool CSNGAInd::check( CSNGAInd const* ind, const int& i )
 //
 //	bool bInSector = false;
 //
-//	//for(int j=0; j<nobj-1; j++)
+//	//for(int j=0; j<N_OBJ-1; j++)
 //	{
 ////与修改角度计算有关的重要地方
 //			if( floor( sectorialangle * (sectornum - 1) + 0.5 ) == sectorcoord )
@@ -334,12 +338,12 @@ bool CSNGAInd::check( CSNGAInd const* ind, const int& i )
 //	return bInSector;
 //}
 
-void CSNGAInd::obj2angle_index(/*vector <double> & pseudonadirpoint, */vector <double> & observerpoint, int sectornum)  //观察点、扇形区域
+void CSNGAInd::obj2angle_index( vector<double>& observerpoint, int sectornum )  //观察点、扇形区域
 {
 	double obj_relative_sum = 0.0;
-	double normalizedf[2];
-	for(int j=0; j<nobj; j++)
-	{
+	double normalizedf[N_OBJ] ;
+	for(int j=0; j<N_OBJ; j++){
+
 		//if(pseudonadirpoint[j] - observerpoint[j]>0)
 		//	normalizedf[j] = (y_obj[j] - observerpoint[j] ) / (pseudonadirpoint[j] - observerpoint[j]);
 		//else
@@ -347,16 +351,24 @@ void CSNGAInd::obj2angle_index(/*vector <double> & pseudonadirpoint, */vector <d
 		obj_relative_sum += normalizedf[j];
 	}
 
-	//for(int j=0; j<nobj; j++)
+	//for(int j=0; j<N_OBJ; j++)
 	if(obj_relative_sum!=0)
 		sectorialangle = normalizedf[0] / obj_relative_sum ;
 	else 
 		sectorialangle = 0;
 
 	sectorialindex = floor( divide*sectorialangle * (sectornum - 1) + 0.5 );
+
+	//////////////////////////////////////////////////////////////////////////
+	//##Added on 2013/9/17 /////////////////////////////////////////////
+	if ( sectorialindex < 0 || sectorialindex >= cur_parameter.pSize ) {
+
+		sectorialindex = 0 ;
+	}
 }
 
 TCompare CSNGAInd::Compare(CSNGAInd& ind2) {
+
 	bool bBetter = false;
 	bool bWorse = false;
 
@@ -367,7 +379,7 @@ TCompare CSNGAInd::Compare(CSNGAInd& ind2) {
 		if(ind2.y_obj[i] < y_obj[i])
 			bWorse = true;
 		i++;
-	}while (!(bWorse && bBetter) && (i < nobj));
+	}while (!(bWorse && bBetter) && (i < N_OBJ));
 	if (bWorse) {
 		if (bBetter)
 			return _Pareto_Nondominated;
@@ -385,7 +397,7 @@ TCompare CSNGAInd::Compare(CSNGAInd& ind2) {
 //bool CSNGAInd::operator<(const CSNGAInd& ind2)
 //{
 //	int flag2 = 0;
-//	for(int n=0;n<nobj;n++)
+//	for(int n=0;n<N_OBJ;n++)
 //	{
 //	    if(ind2.y_obj[n] < y_obj[n])
 //	        return false;
@@ -393,7 +405,7 @@ TCompare CSNGAInd::Compare(CSNGAInd& ind2) {
 //			flag2++;
 //    }
 //
-//    if(flag2==nobj) return false;
+//    if(flag2==N_OBJ) return false;
 //
 //	return true;
 //}
@@ -401,7 +413,7 @@ TCompare CSNGAInd::Compare(CSNGAInd& ind2) {
 //bool CSNGAInd::operator==(const CSNGAInd& ind2)
 //{
 //	int flag = 0;
-//	for(int n=0;n<nobj;n++)
+//	for(int n=0;n<N_OBJ;n++)
 //	{
 //	    if(ind2.y_obj[n] !=y_obj[n])
 //	        return false;
@@ -412,17 +424,17 @@ TCompare CSNGAInd::Compare(CSNGAInd& ind2) {
 //void CSNGAInd::operator=(const CSNGAInd& ind2)
 //{
 //	int n;
-//	for(n=0;n<nobj;n++)
+//	for(n=0;n<N_OBJ;n++)
 //	    y_obj[n] = ind2.y_obj[n];
 //
 //	for(n=0;n<nvar;n++)
 //	    x_var[n] = ind2.x_var[n];
 //    //rank  = ind2.rank;
 //
-//	for(n=0;n<nobj-1;n++)
+//	for(n=0;n<N_OBJ-1;n++)
 //		sectorialcoord[n] = ind2.sectorialcoord[n];
 //
-//	for(n=0;n<nobj/*-1*/;n++)
+//	for(n=0;n<N_OBJ/*-1*/;n++)
 //		sectorialangle[n] = ind2.sectorialangle[n];
 //
 //	sectorialindex = ind2.sectorialindex;

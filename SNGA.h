@@ -1,20 +1,33 @@
-
-
-#ifndef __SNGA_FUNC_H_
-#define __SNGA_FUNC_H_
+#pragma once
 
 //class CSNGAInd;
 #include "sngaind.h"
+#include "RobotView.h"
 
 //enum TUpdated {_No_Updated, _New_Inserted, _Distance_Replaced, _Angle_Replaced, _Distance_Angle_Replaced}; 
 
 class CSNGA    
 {
+	/////////////////////////////////////////////////////
+	//##Added on 2013/9/16
+public :
+	vector<double> hvl ;
+	bool m_is_run ;
+	int evaluations ;
+	int cur_gen ; 
+
+	void get_best_obj( const int& i_obj, vector<int> &path ) ;
+	void init_parameter() ;
+	void evaluation() ;
+	void gen_pop_del_same() ;
+	void gen_delete_same( vector<int>& x_path ) ;
+	void delete_not_pass() ;
+	///////////////////////////////////////////////////////
 public:
-	CSNGA(int pop_size);
+	CSNGA();
 	virtual ~CSNGA();
 
-	void execute(int run, vector<double>& hvl, vector<double>& igd, double& totaltime,  double &unevolvetime);//vector<double> execute(int run);
+	void execute( CRobotView* m_myView );//vector<double> execute(int run);
 	void init_population();
 	//double calc_distance();
 
@@ -22,16 +35,17 @@ public:
 	//void save_ps(char savefilename[1024]);
 
 	//vector <int>  sectorialgrid;
-	vector <CSNGAInd>  sectorpop;
-	vector <CSNGAInd>  ps;
+
+	vector <CSNGAInd>  sector_population;
+	//vector <CSNGAInd>  ps;
 
 	CSNGAInd onechild;
-	int popsize;
+	int population_size;
 	
-	vector<vector <double>> AnchorPoint;     //Ãªµã
-	vector <double> TrueNadirPoint;               //true-nadir-point
-	vector <double> ObserverPoint;
-	vector <double> ReferencePoint;
+	vector<vector <double>> anchor_point;     //Ãªµã
+	vector<double> true_nadir_point;               //true-nadir-point
+	vector<double> observer_point;
+	vector<double> reference_point;
 
 	//int sectornum;
 	//double anglesingle;
@@ -51,7 +65,7 @@ public:
 
 	void reset_angle();
 	void population2front(vector <CSNGAInd>  &mypopulation, vector <vector<double>> &population_front);//vector <CSNGAInd> 
-	double GetFastigiateHyperVolume(CSNGAInd&  ind, int ind_index, vector <double> &ReferencePoint);
+	double get_fastigiate_hypervolume(CSNGAInd&  ind, int ind_index, vector <double> &reference_point);
 	int  tour_selection_hv2(vector <CSNGAInd>  &mypopulation);
 	double  tour_selection_hv_difference(int p, vector <CSNGAInd>  &mypopulation);
 
@@ -60,6 +74,3 @@ public:
 	double compute_hypervolume(vector <CSNGAInd>&  mysectorpop, int mypopsize, int mynobj) ;
 
 };
-
-#endif
-

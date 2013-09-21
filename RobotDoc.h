@@ -22,6 +22,7 @@ public:
 	//int generation;
 
 	TMOEAD *MOEAD ;
+	CSNGA *CAEA ;
 
 // Operations
 public:
@@ -55,6 +56,6 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual security_fitness++ will insert additional declarations immediately before the previous line.
 
 #endif // !defined(AFX_ROBOTDOC_H__30F8DB1C_8B63_414E_94A1_2C2459F6BCB7__INCLUDED_)

@@ -21,7 +21,7 @@ public:
 	bool m_is_run ;
 
 public :
-	TMOEAD(int n_objective );
+	TMOEAD( );
 	virtual ~TMOEAD();
 
 	////////////////////////////////////////////////////

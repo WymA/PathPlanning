@@ -5,7 +5,7 @@
 
 //------------- Parameters in test instance ------------------
 
-int     /*nvar,  */nobj;                    //  the number of variables and objectives
+//int     /*nvar,  */N_OBJ;                    //  the number of variables and objectives
 
 double cross_rate ;
 double mutation_rate ;
@@ -29,13 +29,16 @@ TDecompositionType    tDecompType = _Decomposition_TCH1;
 //int iCurTestInstance;     
 
 //******** Common parameters in MOEAs **********************************************
-int total_gen = 250,//250,//250, //500 1500 1000,//500,//    //  the maximal number of generations
-	total_run = 2 ; //, //30,//      //  the maximal number of runs
+int total_gen = 0 ;//250,//250, //500 1500 1000,//500,//    //  the maximal number of generations
+	//total_run = 2 ; //, //30,//      //  the maximal number of runs
 	//population_size    = 100;//200,    //  the population size
 //nfes;             //  the number of function evluations
-int divide = 0.8;
+double divide = 0.8;
 //**********************************************************************************
 
+
+Fitness fit ;
+Para cur_parameter;
 
 //------------- Parameters in random number ------------------
 int     seed    = 177;
@@ -125,7 +128,7 @@ TCompare ParetoCompare(vector <double> & y_obj1, vector <double>& y_obj2) //judg
 			bWorse = true;
 		i++;
 
-	}while (!(bWorse && bBetter) && (i < nobj));
+	}while (!(bWorse && bBetter) && (i < N_OBJ));
 
 	if (bWorse) {
 

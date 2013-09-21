@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Robot.h"
 #include "MOEAD.h"
+#include "SNGA.h"
 #include "RobotDoc.h"
 
 #ifdef _DEBUG
@@ -46,7 +47,8 @@ CRobotDoc::CRobotDoc()
 	srand((unsigned)time(NULL)) ;
 
 	GARoad = new MyGA(cur_parameter);
-	MOEAD = new TMOEAD(3) ;
+	MOEAD = new TMOEAD() ;
+	CAEA = new CSNGA() ;
 }
 
 CRobotDoc::~CRobotDoc()

@@ -56,7 +56,7 @@ double rnd_uni(long *idum);
 
 //------------- Parameters in test instance ------------------
 
-extern int /*nvar, */nobj ;                    //  the number of variables and objectives
+const int /*nvar, */N_OBJ = 3 ;                    //  the number of variables and objectives
 //extern double  mymoving;
 
 ///////////////////////////////////////////////////////////////////
@@ -69,8 +69,41 @@ extern vector<int> path_length ;
 extern vector<int> path_security ;
 extern vector<int> path_smoothness ;
 
+//////////////////////////////////////////////////////////////////
+//# Added on 2013/9/21 ////////////////////////////////////
+const int SECURITY = 0 ;
+const int SMOOTHNESS = 1 ;
+const int LENGTH = 2 ;
+const int EVAL_WEIGHT = 1000 ;//100000
+
+struct Fitness
+{
+	double length_fitness;//对个体长度的评价
+	double smoothness_fitness;//对个体光滑度的评价
+	double security_fitness;//对个体安全性的评价
+};
+
+typedef struct Parameter
+{
+	int pSize;
+	int T;
+	double propC;
+	double propM;
+	int width;
+	int height;
+	bool length;
+	bool smooth;
+	bool security;
+}Para;
+
+extern Para cur_parameter;
+
+extern Fitness fit ;
+
 //# for tmp //////////////////////////////////////////////////////
 const int NEIGHBORHOOD_SIZE = 5 ;
+
+extern double divide ;
 ///////////////////////////////////////////////////////////////////
 
 

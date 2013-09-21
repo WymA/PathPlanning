@@ -5,14 +5,13 @@
 #include "Recomb.h"
 
 
-TMOEAD::TMOEAD( int n_objective )
+TMOEAD::TMOEAD(  )
 {
-	nobj = n_objective ;
 	m_is_run = false ;
-	//idealpoint = new double[nobj];
-	reference_point = new CIndividual[nobj];    
+	//idealpoint = new double[N_OBJ];
+	reference_point = new CIndividual[N_OBJ];    
 	// initialize ideal point	
-	for( int n = 0 ; n < nobj ; n++) {
+	for( int n = 0 ; n < N_OBJ ; n++) {
 
 		idealpoint.push_back( 1.0e+30 );//idealpoint[n] = 1.0e+30;  
 		reference_point[n].rnd_init( );
@@ -45,36 +44,24 @@ void TMOEAD::init_uniformweight()
 {   
 	for( int i = 0 ; i <= sd ; i++ ){
 
-		if( nobj == 2 ){
+		//for( int j = 0 ; j <= sd ; j++ ){
 
-			TSOP sop;		   
-			sop.array.push_back(i);
-			sop.array.push_back( sd - i ) ;
+//			if( i + j <= sd / 3  ){
 
-			for( int j = 0 ; j < sop.array.size() ; j++ )
-				sop.namda.push_back( 1.0*sop.array[j] / sd ) ;
+				TSOP sop;		   
+				sop.array.push_back(i);
+				int j = rand()%sd ;
+				sop.array.push_back(j);
+				sop.array.push_back(sd - i - j);
 
-			population.push_back(sop); 
+				for( int k = 0 ; k < sop.array.size() ; k++ )
+					sop.namda.push_back( 1.0*sop.array[k] / sd );
 
-		} else {
+				population.push_back(sop); 
 
-			for( int j = 0 ; j <= sd ; j++ ){
-
-				if( i + j <= sd ){
-
-					TSOP sop;		   
-					sop.array.push_back(i);
-					sop.array.push_back(j);
-					sop.array.push_back(sd - i - j);
-
-					for( int k = 0 ; k < sop.array.size() ; k++ )
-						sop.namda.push_back( 1.0*sop.array[k] / sd );
-
-					population.push_back(sop); 
-				}
-
-			}
-		}
+	//		}
+	//	}
+		
 	}
 	population_size = population.size();
 
@@ -122,7 +109,7 @@ void TMOEAD::update_problem(CIndividual &indiv, int id)
 // update the reference point
 void TMOEAD::update_reference(CIndividual &ind)
 {
-	for( int n = 0; n < nobj ; n++ ) {
+	for( int n = 0; n < N_OBJ ; n++ ) {
 
 		if(ind.y_obj[n] < idealpoint[n]){
 
@@ -165,7 +152,7 @@ double TMOEAD::compute_hypervolume(vector <TSOP>&  mypop, int mypopsize, int myn
 
 	front2Dhv = front2Dhv / ((xHypervolumeRefPoint_TopRight - xHypervolumeRefPoint_BottomLeft)*(yHypervolumeRefPoint_TopRight - yHypervolumeRefPoint_BottomLeft));
 
-	return front2Dhv;
+	return front2Dhv ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +188,7 @@ double TMOEAD::compute_hypervolume(vector <TSOP>&  mypop, int mypopsize, int myn
 //	fout.open(saveFilename,std::ios::out);
 //	for(int n=0; n<mypopulation.size(); n++){
 //
-//		for(int k=0;k<nobj;k++){
+//		for(int k=0;k<N_OBJ;k++){
 //
 //			fout<<mypopulation[n].y_obj[k]<<"  ";
 //		}
@@ -251,7 +238,7 @@ void TMOEAD::evolution()
 //	fout.open( saveFilename,std::ios::out );
 //	for(int n=0; n<population.size(); n++){
 //
-//		for(int k=0;k<nobj;k++)
+//		for(int k=0;k<N_OBJ;k++)
 //			fout<<population[n].indiv.y_obj[k]<<"  ";
 //		fout<<"\n";
 //	}
@@ -310,7 +297,7 @@ double TMOEAD::scalarizing(vector <double> &y_obj, vector <double> &namda, CIndi
 	if( tDecompType == _Decomposition_TCH1 )
 	{
 		double max_fun = -1.0e+30 ;
-		for(int n=0; n<nobj; n++)
+		for(int n=0; n<N_OBJ; n++)
 		{
 			double diff = fabs( y_obj[n] - idealpoint[n] );
 			double feval;
@@ -330,10 +317,10 @@ double TMOEAD::scalarizing(vector <double> &y_obj, vector <double> &namda, CIndi
 	if(tDecompType == _Decomposition_TCH2)
 	{
 		vector <double> scale;
-		for(int i=0; i<nobj; i++)
+		for(int i=0; i<N_OBJ; i++)
 		{
 			double min = 1.0e+30, max = -1.0e+30;
-			for(int j=0; j<nobj; j++)
+			for(int j=0; j<N_OBJ; j++)
 			{
 				double tp = nbi_node[j].y_obj[i];
 				if(tp>max) max = tp;
@@ -344,7 +331,7 @@ double TMOEAD::scalarizing(vector <double> &y_obj, vector <double> &namda, CIndi
 		}
 
 		double max_fun = -1.0e+30;
-		for(int n=0; n<nobj; n++)
+		for(int n=0; n<N_OBJ; n++)
 		{
 			double diff = (y_obj[n] - idealpoint[n])/scale[n];
 			double feval;
@@ -365,21 +352,21 @@ double TMOEAD::scalarizing(vector <double> &y_obj, vector <double> &namda, CIndi
 
 		// normalize the weight vector (line segment)
 		double nd = norm_vector(namda);
-		///for(int i=0; i<nobj; i++)
+		///for(int i=0; i<N_OBJ; i++)
 		///	namda[i] = namda[i]/nd;
 
-		vector <double> realA(nobj);
-		vector <double> realB(nobj);
+		vector <double> realA(N_OBJ);
+		vector <double> realB(N_OBJ);
 
 		// difference beween current point and reference point
-		for(int n=0; n<nobj; n++)
+		for(int n=0; n<N_OBJ; n++)
 			realA[n] = (y_obj[n] - idealpoint[n]);
 
 		// distance along the line segment
 		double d1 = fabs(innerproduct(realA,namda)) / nd;
 
 		// distance to the line segment
-		for(int n=0; n<nobj; n++)
+		for(int n=0; n<N_OBJ; n++)
 			realB[n] = (y_obj[n] - (idealpoint[n] + d1*namda[n]));
 		double d2 = norm_vector(realB);
 
@@ -394,26 +381,28 @@ double TMOEAD::scalarizing(vector <double> &y_obj, vector <double> &namda, CIndi
 ////////////////////////////////////////////////////////////////////////////
 void TMOEAD::get_best_obj( int i_obj, vector<int> &path ) 
 {
-	double cur_best_obj_value ;
+	double cur_best_obj_value = population[0].indiv.y_obj[ i_obj ] ;
 	int cur_best_obj_index = 0 ;
 
-	for( int i = 0; i < population_size; ++i ) {
+	for( int i = 1 ; i < population_size; ++i ) {
 
-		if ( population[i].indiv.rank == 1 ) {
+		if ( i_obj == SECURITY ) { //# Security: the greater the better
 
-			cur_best_obj_value = population[i].indiv.y_obj[ i_obj ] ;
-			cur_best_obj_index = i ;
-			break;
-		
-		}
-	}
+			if ( /*sector_population[i].y_obj[ i_obj ] > 0 &&*/ population[i].indiv.y_obj[ i_obj ] > cur_best_obj_value ) {
 
-	for( int i = cur_best_obj_index + 1; i < population_size; ++i) {
+				cur_best_obj_value = population[i].indiv.y_obj[ i_obj ] ;
+				cur_best_obj_index = i ;
+				break;
+			}
 
-		if ( population[i].indiv.rank == 1 && population[i].indiv.y_obj[ i_obj ] < cur_best_obj_value ) {
+		}else{ //# Length and Smoothness
 
-			cur_best_obj_value = population[i].indiv.y_obj[i_obj] ;
-			cur_best_obj_index = i ;
+			if ( /*sector_population[i].y_obj[ i_obj ] < 1 &&*/ population[i].indiv.y_obj[ i_obj ] < cur_best_obj_value ) {
+
+				cur_best_obj_value = population[i].indiv.y_obj[ i_obj ] ;
+				cur_best_obj_index = i ;
+				break;
+			}
 		}
 	}
 
@@ -442,6 +431,7 @@ void TMOEAD::gen_pop_del_same()
 		gen_delete_same( population[i].indiv.x_var ) ;
 	}
 }
+
 void TMOEAD::gen_delete_same( vector<int>& x_path )
 {
 	int start_point;
@@ -498,13 +488,13 @@ void  TMOEAD::execute( CRobotView* m_myView )
 
 	this->cur_generation = 1;
 
-	double hypervolume = compute_hypervolume(population, population_size, nobj);////calc_distance();
+	double hypervolume = compute_hypervolume(population, population_size, N_OBJ);////calc_distance();
 	hvl.push_back(0);
 	hvl.push_back(hypervolume);
 
-	get_best_obj( 0, path_length ) ;
-	get_best_obj( 1, path_smoothness ) ;
-	get_best_obj( 2, path_security ) ;
+	get_best_obj( LENGTH, path_length ) ;
+	get_best_obj( SMOOTHNESS, path_smoothness ) ;
+	get_best_obj( SECURITY, path_security ) ;
 				
 	m_is_run = true ;
 
@@ -527,14 +517,14 @@ void  TMOEAD::execute( CRobotView* m_myView )
 
 			//double begintime = clock();
 
-			hypervolume = compute_hypervolume(population, population_size, nobj);//cout<<"cur_generation = "<<cur_generation<<"  hypervolume = "<<hypervolume<<"  "<<endl;
+			hypervolume = compute_hypervolume(population, population_size, N_OBJ);//cout<<"cur_generation = "<<cur_generation<<"  hypervolume = "<<hypervolume<<"  "<<endl;
 			hvl.push_back( int(1.0*cur_generation/dd) );
 			hvl.push_back(hypervolume);
 
 
-			get_best_obj( 0, path_length ) ;
-			get_best_obj( 1, path_smoothness ) ;
-			get_best_obj( 2, path_security ) ;
+			get_best_obj( LENGTH, path_length ) ;
+			get_best_obj( SMOOTHNESS, path_smoothness ) ;
+			get_best_obj( SECURITY, path_security ) ;
 
 
 			//distance = calc_distance();
@@ -548,6 +538,12 @@ void  TMOEAD::execute( CRobotView* m_myView )
 
 		m_myView->Invalidate();
 		m_myView->UpdateWindow(); 
+
+		//int dstTime, srcTime ;
+		//dstTime = srcTime = GetTickCount();
+		//do{
+		//	dstTime = GetTickCount();
+		//}while((dstTime-srcTime) <= 100);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////

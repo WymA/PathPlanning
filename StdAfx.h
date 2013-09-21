@@ -22,7 +22,8 @@
 
 #include "MyGA.h"
 class TMOEAD ;
-extern Para cur_parameter;
+class CSNGA ;
+//extern Para cur_parameter;
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

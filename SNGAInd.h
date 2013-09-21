@@ -23,6 +23,11 @@ public:
 	vector <int> x_var;
 	vector <double> y_obj;
 
+	///////////////////////////////////////
+	//##Added on 2013/9/16 /////////
+	bool is_pass ;
+	//int rank ;
+
 	//int    rank, count;
 	//vector <int>        sectorialcoord;
 	//vector <double>     
