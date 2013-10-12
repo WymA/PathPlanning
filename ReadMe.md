@@ -1,7 +1,4 @@
-========================================================================
-       MICROSOFT FOUNDATION CLASS LIBRARY : Robot
-========================================================================
-
+## MICROSOFT FOUNDATION CLASS LIBRARY : Robot
 
 AppWizard has created this Robot application for you.  This application
 not only demonstrates the basics of using the Microsoft Foundation classes
@@ -47,7 +44,7 @@ res\Robot.rc2
 
 
 
-------------------
+---
 
 For the main frame window:
 
@@ -59,9 +56,9 @@ res\Toolbar.bmp
     This bitmap file is used to create tiled images for the toolbar.
     The initial toolbar and status bar are constructed in the CMainFrame
     class. Edit this toolbar bitmap using the resource editor, and
-    update the IDR_MAINFRAME TOOLBAR array in Robot.rc to add
-    toolbar buttons.
-------------------
+    update the IDR_MAINFRAME TOOLBAR array in Robot.rc to add toolbar buttons.
+	
+---
 
 AppWizard creates one document type and one view:
 
@@ -74,9 +71,8 @@ RobotView.h, RobotView.cpp - the view of the document
     These files contain your CRobotView class.
     CRobotView objects are used to view CRobotDoc objects.
 
+---
 
-
-------------------
 Other standard files:
 
 StdAfx.h, StdAfx.cpp
@@ -87,7 +83,7 @@ Resource.h
     This is the standard header file, which defines new resource IDs.
     Microsoft Visual C++ reads and updates this file.
 
-------------------
+---
 Other notes:
 
 AppWizard uses "TODO:" to indicate parts of the source code you
@@ -102,4 +98,4 @@ For example, MFC42DEU.DLL contains resources translated to German.)  If you
 don't do this, some of the UI elements of your application will remain in the
 language of the operating system.
 
-------------------
+---
