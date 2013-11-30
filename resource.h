@@ -22,6 +22,9 @@
 #define IDC_LENGTH                      1012
 #define IDC_SMOOTH                      1013
 #define IDC_SAFE                        1014
+#define IDC_SAFE2                       1015
+#define IDC_SMOOTH2                     1016
+#define IDC_LENGTH2                     1017
 #define IDC_EDIT3                       1018
 #define ID_MENUSTART                    32771
 #define ID_MENUSTOP                     32772
@@ -41,14 +44,19 @@
 #define ID_NSGA2                        32787
 #define ID_MOEAD                        32788
 #define ID_CAEA                         32789
+#define ID_OPTONLY                      32798
+#define ID_BTSPUP                       32799
+#define ID_BTSPDN                       32800
+#define ID_BUTTON32801                  32801
+#define ID_BTRTSP                       32801
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         32790
+#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_COMMAND_VALUE         32802
 #define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -8,9 +8,12 @@
 #include "MainFrm.h"
 #include "MOEAD.h"
 #include "SetPara.h"
-#include "MyGA.h"
+#include "NSGA2.h"
 #include "string.h"
-#include "SNGA.h"
+#include <sstream>
+#include <queue>
+#include "CAEA.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -18,38 +21,37 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-
 /////////////////////////////////////////////////////////////////////////////
 // CRobotView
 
 IMPLEMENT_DYNCREATE(CRobotView, CView)
 
 BEGIN_MESSAGE_MAP(CRobotView, CView)
-	//{{AFX_MSG_MAP(CRobotView)
 	ON_WM_SIZE()
 	ON_COMMAND(ID_BTSTART, OnBtstart)
-	ON_COMMAND(ID_BTERASE, OnBterase)
-	ON_COMMAND(ID_BTADD, OnBtadd)
 	ON_COMMAND(ID_BTPARA, OnBtpara)
-	ON_COMMAND(ID_MENUADD, OnMenuadd)
-	ON_COMMAND(ID_MENUERASE, OnMenuerase)
 	ON_COMMAND(ID_MENUPARA, OnMenupara)
 	ON_COMMAND(ID_MENUSTART, OnMenustart)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_CANCELMODE()
 	ON_WM_CREATE()
 	ON_COMMAND(ID_BTPAUSE, OnBtpause)
-	//}}AFX_MSG_MAP
-//	ON_COMMAND(ID_NSGA2, &CRobotView::OnNsga2)
-//	ON_COMMAND(ID_MOEAD, &CRobotView::OnMoead)
-//	ON_COMMAND(ID_CAEA, &CRobotView::OnCaea)
-//	ON_UPDATE_COMMAND_UI(ID_NSGA2, &CRobotView::OnUpdateNsga2)
-ON_UPDATE_COMMAND_UI(ID_NSGA2, &CRobotView::OnUpdateNsga2)
+	ON_UPDATE_COMMAND_UI(ID_NSGA2, &CRobotView::OnUpdateNsga2)
 ON_UPDATE_COMMAND_UI(ID_MOEAD, &CRobotView::OnUpdateMoead)
 ON_UPDATE_COMMAND_UI(ID_CAEA, &CRobotView::OnUpdateCaea)
 ON_COMMAND(ID_NSGA2, &CRobotView::OnNsga2)
 ON_COMMAND(ID_MOEAD, &CRobotView::OnMoead)
 ON_COMMAND(ID_CAEA, &CRobotView::OnCaea)
+ON_COMMAND(ID_BTSTOP, &CRobotView::OnBtstop)
+ON_COMMAND(ID_OPTONLY, &CRobotView::OnOptonly)
+ON_UPDATE_COMMAND_UI(ID_OPTONLY, &CRobotView::OnUpdateOptonly)
+ON_UPDATE_COMMAND_UI(ID_BTSTART, &CRobotView::OnUpdateBtstart)
+//ON_UPDATE_COMMAND_UI(ID_BTSTOP, &CRobotView::OnUpdateBtstop)
+ON_UPDATE_COMMAND_UI(ID_BTPAUSE, &CRobotView::OnUpdateBtpause)
+ON_WM_KEYDOWN()
+ON_COMMAND(ID_BTSPDN, &CRobotView::OnBtspdn)
+ON_COMMAND(ID_BTSPUP, &CRobotView::OnBtspup)
+ON_COMMAND(ID_BTRTSP, &CRobotView::OnBtrtsp)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -64,11 +66,18 @@ CRobotView::CRobotView()
 	m_CurOpID = ID_APP_ABOUT;
 	m_preState = &m_bEraseBlock;
 	m_pThread = NULL;
-	m_test_method = NSGA2 ;
+	m_test_method = kNsga2Idx ;
+
+	//InitMethod() ;
+
+	ff.open("test.txt", std::ios::out);
 }
 CRobotView::~CRobotView()
 {
+	//DelMethod() ;
 }
+
+
 
 BOOL CRobotView::PreCreateWindow(CREATESTRUCT& cs)
 {
@@ -79,15 +88,13 @@ BOOL CRobotView::PreCreateWindow(CREATESTRUCT& cs)
 
 /////////////////////////////////////////////////////////////////////////////
 // CRobotView drawing
-
-void CRobotView::OnDraw(CDC* pDC)
+void CRobotView::DrawAll(CDC* pDC) 
 {
 	CPoint   point;
 	
 	CRobotDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
-	// TODO: add draw code for native data here
-	
+
 	DrawChart(pDC,m_origX,m_origY);
 	DrawBlocks(pDC,m_origX,m_origY);
 	ShowPara(pDC);
@@ -97,72 +104,62 @@ void CRobotView::OnDraw(CDC* pDC)
 	BYTE blue;
 	COLORREF m_PathColor;
 
-	switch ( m_test_method ){
 
-	case NSGA2:
-		{
+	if ( !optimal_only ) {
+		switch ( m_test_method ){
 
-			if(pDoc->GARoad->m_bAlreadyRun){
-
-				for(int i=0;i<pDoc->GARoad->popSize;i++){
-
-					red = (20*i)%256;
-					green = 0;//(50*i)%256;
-					blue = (80*i)%256;
-					m_PathColor = RGB(red,green,blue);
-					DrawPath(pDC, &(pDoc->GARoad->parent_pop.ind[i].xPath), m_PathColor);
-				}
-			}
-
-			if(pDoc->GARoad->m_bAlreadyStarted){
-
-				DrawPath(pDC, &(path_security), COLOR_SECURITY_RED );//NULL  pDoc->GARoad->curBestGenome->genVec
-				DrawPath(pDC, &(path_smoothness), COLOR_SMOOTHNESS_BLUE );
-				DrawPath(pDC, &(path_length), COLOR_LENGTH_GREEN );
-			}
-		}
-
-		break ;
-	case MOEAD:
-		{
-			if( pDoc->MOEAD->m_is_run ){
-
-				for(int i=0;i<pDoc->MOEAD->population_size;i++){
+		case kNsga2Idx:
+			{
+				for(int i = 0; i < pDoc->method_nsga2->popSize;i++){
 
 					red = (20*i)%256;
 					green = 0;//(50*i)%256;
 					blue = (80*i)%256;
 					m_PathColor = RGB(red,green,blue);
-					DrawPath(pDC, &(pDoc->MOEAD->population[i].indiv.x_var ), m_PathColor);
+					DrawPath(pDC, &(pDoc->method_nsga2->parent_pop.ind[i].x_var), m_PathColor);
 				}
-
-				DrawPath(pDC, &(path_security), COLOR_SECURITY_RED );//NULL  pDoc->GARoad->curBestGenome->genVec
-				DrawPath(pDC, &(path_smoothness), COLOR_SMOOTHNESS_BLUE );
-				DrawPath(pDC, &(path_length), COLOR_LENGTH_GREEN );
 			}
-		}
-		break ;
-	case CAEA:
-		{
-			if( pDoc->CAEA->m_is_run ){
 
-				for(int i=0;i<pDoc->CAEA->population_size;i++){
+			break ;
+		case kMoeadIdx:
+			{
+				for(int i=0;i < pDoc->method_moead->population_size;i++){
 
 					red = (20*i)%256;
 					green = 0;//(50*i)%256;
 					blue = (80*i)%256;
 					m_PathColor = RGB(red,green,blue);
-					DrawPath(pDC, &(pDoc->CAEA->sector_population[i].x_var ), m_PathColor);
-				}
-
-				DrawPath(pDC, &(path_security), COLOR_SECURITY_RED );//NULL  pDoc->GARoad->curBestGenome->genVec
-				DrawPath(pDC, &(path_smoothness), COLOR_SMOOTHNESS_BLUE );
-				DrawPath(pDC, &(path_length), COLOR_LENGTH_GREEN );
+					DrawPath(pDC, &( pDoc->method_moead->population[i].indiv.x_var ), m_PathColor);
+				}	
 			}
-		}
-		break ;
+			break ;
+		case kCaeaIdx:
+			{
+
+				for(int i=0;i< pDoc->method_caea->population_size;i++){
+					red = (20*i)%256;
+					green = 0;//(50*i)%256;
+					blue = (80*i)%256;
+					m_PathColor = RGB(red,green,blue);
+					DrawPath(pDC, &( pDoc->method_caea->sector_population[i].x_var ), m_PathColor);
+				}
+			
+			}
+			break ;
+		}	
 	}
 
+	DrawPath(pDC, &(path_security), kColorSecurityRed );//NULL  method_nsga2->curBestGenome->genVec
+	DrawPath(pDC, &(path_smoothness), kColorSmoothnessBlue );
+	DrawPath(pDC, &(path_length), kColorLengthGreen );
+
+}
+
+
+
+void CRobotView::OnDraw(CDC* pDC)
+{
+	DrawAll(pDC) ;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -190,7 +187,7 @@ CRobotDoc* CRobotView::GetDocument() // non-debug version is inline
 // CRobotView message handlers
 void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 {
-	CRobotDoc* pDoc = GetDocument();
+	//CRobotDoc* pDoc = GetDocument();
 	int chart_width = cur_parameter.width;
 	int chart_height = cur_parameter.height;
 	gridWidth = min(m_cxWnd/chart_width,(int)(m_cyWnd*7/8/chart_height));
@@ -205,55 +202,18 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 		int x1 = x0 + gridWidth*chart_width ;
 		int y = originY + gridWidth*i;
 		pDC->MoveTo(x0,y);
-		pDC->LineTo(x1,y);
-		
+		pDC->LineTo(x1,y);	
 	}
 
-	if(cur_parameter.smooth)
-	{
-		COLORREF oldColor = pDC->SetTextColor(RGB(0,0,255));
-		pDC->MoveTo(chart_width*gridWidth+250,originY);//画y轴
-		pDC->LineTo(chart_width*gridWidth+250,originY+chart_height*gridWidth);
-		pDC->MoveTo(chart_width*gridWidth+250,originY+15);
-		pDC->LineTo(chart_width*gridWidth+245,originY+25);
-		pDC->MoveTo(chart_width*gridWidth+250,originY+15);
-		pDC->LineTo(chart_width*gridWidth+255,originY+25);
-		pDC->TextOut(chart_width*gridWidth+250,originY,"长度适应度（优）");
-		pDC->MoveTo(chart_width*gridWidth+250,originY+chart_height*gridWidth);//画X轴
-		pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);
-		pDC->MoveTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);
-		pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth-10,originY+chart_height*gridWidth+5);
-		pDC->MoveTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);
-		pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth-10,originY+chart_height*gridWidth-5);
-		pDC->TextOut(chart_width*gridWidth+155+chart_height*gridWidth,originY+chart_height*gridWidth+10,"平滑度适应度（优）");
-		pDC->TextOut(chart_width*gridWidth+250+fit.smoothness_fitness*250,originY+chart_height*gridWidth-fit.length_fitness*250,"*");//画帕累托图
-	}
-	else if(cur_parameter.security)
-	{
-		COLORREF oldColor = pDC->SetTextColor(RGB(0,0,255));
-		pDC->MoveTo(chart_width*gridWidth+250,originY);//画y轴
-		pDC->LineTo(chart_width*gridWidth+250,originY+chart_height*gridWidth);
-		pDC->MoveTo(chart_width*gridWidth+250,originY+15);
-		pDC->LineTo(chart_width*gridWidth+245,originY+25);
-		pDC->MoveTo(chart_width*gridWidth+250,originY+15);
-		pDC->LineTo(chart_width*gridWidth+255,originY+25);
-		pDC->TextOut(chart_width*gridWidth+250,originY,"长度适应度（优）");
-		pDC->MoveTo(chart_width*gridWidth+250,originY+chart_height*gridWidth);//画X轴
-		pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);
-		pDC->MoveTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);
-		pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth-10,originY+chart_height*gridWidth+5);
-		pDC->MoveTo(chart_width*gridWidth+250+chart_height*gridWidth,originY+chart_height*gridWidth);pDC->LineTo(chart_width*gridWidth+250+chart_height*gridWidth-10,originY+chart_height*gridWidth-5);
-		pDC->TextOut(chart_width*gridWidth+155+chart_height*gridWidth,originY+chart_height*gridWidth+10,"安全性适应度（优）");
-		for(int i=0; i<cur_parameter.pSize;i++)
-			pDC->TextOut(chart_width*gridWidth+250+(1-fit.security_fitness)*250,originY+chart_height*gridWidth-fit.length_fitness*250,"*");//画帕累托图
-	}
+	DrawPareto(pDC, originX, originY ) ;
+	//////////////////////////////////////////////////	
 	
 	COLORREF oldColor = pDC->SetTextColor(RGB(100,100,100));//设置文本字体的颜色
 	//画竖线
 	CPen m_ChartPen(PS_SOLID,1,RGB(100,100,100));//设置划线的颜色
 	m_OldPen = pDC->SelectObject (&m_ChartPen);
-	for (int i = 0; i <= chart_width; i++)
-	{
+	for (int i = 0; i <= chart_width; i++){
+
 		int y0 = originY;
 		int y1 = y0 + gridWidth*chart_height;
 		int x = originX + gridWidth*i;
@@ -281,6 +241,112 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 	pDC->SelectObject(oldFont);
 }
 
+void CRobotView::DrawPareto(CDC* pDC,int originX,int originY) 
+{
+
+	COLORREF oldColor = pDC->SetTextColor(RGB(0,0,255));
+	pDC->TextOut(chart_width*gridWidth+kChartLength-5, originY+chart_height*gridWidth, "O");
+	pDC->TextOut(chart_width*gridWidth+kChartLength+15, originY+chart_height*gridWidth, "Utopian point ");
+	pDC->MoveTo(chart_width*gridWidth+kChartLength,originY);//画y轴
+	pDC->LineTo(chart_width*gridWidth+kChartLength,originY+chart_height*gridWidth);
+	pDC->MoveTo(chart_width*gridWidth+kChartLength,originY+15);
+	pDC->LineTo(chart_width*gridWidth+245,originY+25);
+	pDC->MoveTo(chart_width*gridWidth+kChartLength,originY+15);
+	pDC->LineTo(chart_width*gridWidth+255,originY+25);
+	pDC->MoveTo(chart_width*gridWidth+kChartLength,originY+chart_height*gridWidth);//画X轴
+	pDC->LineTo(chart_width*gridWidth+kChartLength+chart_height*gridWidth,originY+chart_height*gridWidth);
+	pDC->MoveTo(chart_width*gridWidth+kChartLength+chart_height*gridWidth,originY+chart_height*gridWidth);
+	pDC->LineTo(chart_width*gridWidth+kChartLength+chart_height*gridWidth-10,originY+chart_height*gridWidth+5);
+	pDC->MoveTo(chart_width*gridWidth+kChartLength+chart_height*gridWidth,originY+chart_height*gridWidth);pDC->LineTo(chart_width*gridWidth+kChartLength+chart_height*gridWidth-10,originY+chart_height*gridWidth-5);
+
+
+
+	if ( cur_parameter.length ){
+
+		pDC->TextOut(
+			chart_width*gridWidth+kChartLength,
+			originY,
+			"长度适应度");
+
+		if ( cur_parameter.smooth  ){
+			
+			pDC->TextOut(
+				chart_width*gridWidth+155+chart_height*gridWidth,
+				originY+chart_height*gridWidth+10,
+				"平滑性适应度");
+		}else{
+
+			pDC->TextOut(
+				chart_width*gridWidth+155+chart_height*gridWidth,
+				originY+chart_height*gridWidth+10,
+				"安全性适应度");
+		}
+	}else{
+
+		pDC->TextOut(
+			chart_width*gridWidth+kChartLength,
+			originY,
+			"平滑性适应度"
+			);
+		pDC->TextOut(
+			chart_width*gridWidth+155+chart_height*gridWidth,
+			originY+chart_height*gridWidth+10,
+			"安全性适应度");
+
+	}
+
+	//if ( run_state != kStart ) return ;
+
+
+	//for ( vector<vector<double>>::iterator idx = dominated_fitness.begin() ; 
+	//		idx != dominated_fitness.end() ;
+	//		idx++) 
+	//{
+	//	if ((*idx)[obj1] >= 1 ||(*idx)[obj1] <= 0 ||
+	//		(*idx)[obj2] >= 1 ||(*idx)[obj2] <= 0 )
+	//			continue ;
+
+	//	pDC->TextOut(
+	//		chart_width*gridWidth+kChartLength + (*idx)[obj1]*kChartLength,
+	//		originY+chart_height*gridWidth - (*idx)[obj2]*kChartLength, kParetoDominated ) ;//画帕累托图
+	//}
+
+
+
+
+	for ( vector<vector<double>>::iterator idx = dominating_fitness.begin() ; 
+			idx != dominating_fitness.end() ;
+			idx++) {
+
+		if ( (*idx)[obj1] > 1 || (*idx)[obj1] < 0 ||
+			(*idx)[obj2] > 1 ||(*idx)[obj2] < 0 )
+			continue ;
+
+		DrawPoint( pDC, 
+			chart_width*gridWidth+ kChartLength + 
+			(*idx)[obj2]*kChartLength,
+			originY+chart_height*gridWidth - 
+			(*idx)[obj1]*kChartLength) ;
+	}
+}
+
+void CRobotView::DrawPoint( CDC* pDC,int originX,int originY )
+{
+	pDC->SetPixel( originX, originY, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX+1, originY-1, RGB(0, 0,0)) ;
+	pDC->SetPixel( originX-1 , originY-1, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX -1, originY+1, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX +1, originY +1, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX, originY+1, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX+1, originY, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX, originY-1, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX-1, originY, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX+2, originY-2, RGB(0, 0,0)) ;
+	pDC->SetPixel( originX-2 , originY-2, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX-2, originY+2, RGB(0, 0, 0)) ;
+	pDC->SetPixel( originX+2, originY+2, RGB(0, 0, 0)) ;
+}
+
 void CRobotView::OnSize(UINT nType, int cx, int cy) //调整图格大小以适合不同窗口大小
 {
 	CView::OnSize(nType, cx, cy);
@@ -292,7 +358,7 @@ void CRobotView::OnSize(UINT nType, int cx, int cy) //调整图格大小以适合不同窗口
 
 void CRobotView::DrawBlocks(CDC* pDC,int originX,int originY)
 {
-	CRobotDoc* pDoc = GetDocument();
+	//CRobotDoc* pDoc = GetDocument();
 	int width = cur_parameter.width;
 	int height = cur_parameter.height;
 	int upleftX,upleftY,lowrightX,lowrightY;
@@ -304,7 +370,7 @@ void CRobotView::DrawBlocks(CDC* pDC,int originX,int originY)
 	for (int i = 0; i < height; i++)
 		for (int j = 0; j < width; j++)
 		{
-			if ( IsBlock(i,j) )
+			if ( is_block(i,j) )
 			{
 				upleftX = originX+j*gridWidth;
 				upleftY = originY+i*gridWidth;
@@ -320,17 +386,17 @@ void CRobotView::DrawBlocks(CDC* pDC,int originX,int originY)
 
 void CRobotView::DrawPath(CDC* pDC,vector<int>* path,COLORREF m_PathColor)
 {
-	if (path)//如果路径不为空则画路径
-	{
-		CRobotDoc* pDoc = GetDocument();
+	if (path){			//如果路径不为空则画路径
+	
+		//CRobotDoc* pDoc = GetDocument();
 		int chartH,chartW;
-		GetChartSize(chartH,chartW);
+		get_chart_size(chartH,chartW);
 		
 		CPen m_PathPen(PS_DASH,2,m_PathColor);
 		CPen* m_OldPen = pDC->SelectObject(&m_PathPen);
 
-		if (path->size()!=0 && chartH!=0 && chartW!=0)
-		{
+		if (path->size()!=0 && chartH!=0 && chartW!=0)	{
+
 			int len = path->size();
 			int curY,curX;
 			curY = (*path)[0]/chartW;
@@ -339,8 +405,8 @@ void CRobotView::DrawPath(CDC* pDC,vector<int>* path,COLORREF m_PathColor)
 			curX = m_origX + curX*gridWidth + (gridWidth+1)/2;
 			pDC->MoveTo(curX,curY);
 
-			for (int i = 1; i < len; i++)
-			{
+			for (int i = 1; i < len; i++)	{
+
 				curY = (*path)[i]/chartW;
 				curX = (*path)[i]%chartW;
 				curY = m_origY + curY*gridWidth + (gridWidth+1)/2;
@@ -353,119 +419,56 @@ void CRobotView::DrawPath(CDC* pDC,vector<int>* path,COLORREF m_PathColor)
 	}
 }
 
-UINT ThreadFunc(LPVOID pParam)
-{
-	CRobotView* m_CurView = (CRobotView*)pParam;
-	CRobotDoc* pDoc = m_CurView->GetDocument();
-
-	switch ( m_CurView->m_test_method ) { 
-
-	case NSGA2 :
-		{
-		
-			MyGA* m_Robot = pDoc->GARoad;
-			if (m_Robot)
-			{
-				MyGA* m_Robot = pDoc->GARoad;
-				m_Robot->gamain(m_CurView);
-				m_Robot->Init(cur_parameter);
-			}
-
-		}
-		break;
-	case MOEAD:
-		{
-			TMOEAD *moead = pDoc->MOEAD ;
-			moead->execute(m_CurView) ;
-		}
-		break ;
-	case CAEA :
-		{
-			CSNGA * caea = pDoc->CAEA ;
-			caea->execute(m_CurView) ;
-		}
-		break ;
-	}
-
-	return 0;
-}
-
 void CRobotView::OnBtstart() 
 {
-	// TODO: Add your command handler code here
-	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
+	//TODO: Add your command handler code here
+	/*((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
 	*m_preState = false;
 
 	m_CurOpID = ID_BTSTART;
-	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,TRUE);
+	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,TRUE);*/
 
-	//if (pDoc->GARoad->m_bAlreadyStarted)
-	{
-	m_pThread = AfxBeginThread(ThreadFunc,this);
+	CRobotDoc* pDoc = GetDocument();
+
+	if ( run_state == kStop ){//##Start a new thread
+
+		pDoc->DelMethod() ;
+		pDoc->InitMethod();
+
+		m_pThread = AfxBeginThread(ThreadFunc,this);
 	}	
+	if ( run_state == kPause ) {
+
+		m_pThread->ResumeThread() ;
+		run_state = kStart ;
+	}
 }
 
 void CRobotView::OnBtpause() 
 {
-	// TODO: Add your command handler code here
-	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
+	//TODO: Add your command handler code here
+	/*((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
 	*m_preState = false;
 
 	m_CurOpID = ID_BTPAUSE;
-	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,TRUE);
-	if(m_pThread)
-	{
+	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,TRUE);*/
+	
+	if(m_pThread && run_state == kStart ){
+
 		m_pThread->SuspendThread();
-
-		//暂停时对当前最优的序列进行一次插值
-		//使之更加连续
-		switch (m_test_method){
-
-		case NSGA2:
-			{
-	/*			CRobotDoc* pDoc = GetDocument();
-				MyGA* m_Robot = pDoc->GARoad;
-				Invalidate();
-				UpdateWindow();*/
-			}
-			break ;
-		case MOEAD:
-
-			break ;
-		case CAEA :
-
-			break ;
-		}
+	
+		run_state = kPause ;
 
 	}	
 }
 
-void CRobotView::OnBterase() 
+void CRobotView::OnBtstop()
 {
-	// TODO: Add your command handler code here
-	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
-	*m_preState = false;
-	m_bEraseBlock = !m_bEraseBlock;
-	m_preState = &m_bEraseBlock;
-	m_CurOpID = ID_BTERASE;
-	if (m_bEraseBlock)
-		((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,TRUE);
-	else
-		((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
-}
+	// TODO: 在此添加命令处理程序代码
+	//((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
+	//*m_preState = false;
 
-void CRobotView::OnBtadd() 
-{
-	// TODO: Add your command handler code here
-	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
-	*m_preState = false;
-	m_bAddBlock = !m_bAddBlock;
-	m_preState = &m_bAddBlock;
-	m_CurOpID = ID_BTADD;
-	if (m_bAddBlock)
-		((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,TRUE);
-	else
-		((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);	
+	run_state = kStop ;
 }
 
 void CRobotView::OnBtpara() //调整参数
@@ -480,20 +483,21 @@ void CRobotView::OnBtpara() //调整参数
 	SetPara m_ChangePara;
 	if (m_ChangePara.DoModal() == IDOK)
 	{
-		//注意参数变了之后，需要对chart的大小进行调整
-		CRobotDoc* pDoc = GetDocument();
-		AdjustChart(m_ChangePara.m_Height,m_ChangePara.m_Width);
 
 		cur_parameter.height = m_ChangePara.m_Height;
 		cur_parameter.width = m_ChangePara.m_Width;
-		cur_parameter.propC = m_ChangePara.m_Cross;
-		cur_parameter.propM = m_ChangePara.m_Mutation;
+		cur_parameter.pop_cross_rate = m_ChangePara.m_Cross;
+		cur_parameter.pop_mutation_rate = m_ChangePara.m_Mutation;
 		cur_parameter.pSize = m_ChangePara.m_PopSize;
-		cur_parameter.T = m_ChangePara.m_GenNum;
+		cur_parameter.total_gen = m_ChangePara.m_GenNum;
 		cur_parameter.length = m_ChangePara.m_Length;
 		cur_parameter.smooth = m_ChangePara.m_Smooth;
 		cur_parameter.security = m_ChangePara.m_Safe;
-		
+
+		//init_globe() ;
+		init_chart() ;
+		//pDoc->InitMethod() ;
+
 		Invalidate();
 		UpdateWindow();
 	}
@@ -507,17 +511,6 @@ void CRobotView::OnBtresult()
 	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,TRUE);
 	Invalidate();
 	UpdateWindow();
-}
-void CRobotView::OnMenuadd() 
-{
-	// TODO: Add your command handler code here
-	OnBtadd();	
-}
-
-void CRobotView::OnMenuerase() 
-{
-	// TODO: Add your command handler code here
-	OnBterase();
 }
 
 void CRobotView::OnMenupara() 
@@ -537,29 +530,43 @@ void CRobotView::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	
 	CView::OnLButtonDown(nFlags, point);
-	int curBlockULX = (point.x-m_origX)/gridWidth;
-	int curBlockULY = (point.y-m_origY)/gridWidth;
 
-	CRobotDoc* pDoc = GetDocument();
+	if ( run_state == kStart ) 
+		return ;
+	
 
-	if (m_bEraseBlock)//如果处于清除block状态
-	{
-		ClearBlock(curBlockULY,curBlockULX);
+	int curBlockULX = 0 ;
+	int curBlockULY = 0 ;
+
+	if ( point.x >= cur_parameter.width*gridWidth+m_origX || 
+		point.y >= cur_parameter.width*gridWidth+m_origY ){
+
+			return ;
+	}else {
+		curBlockULX = (point.x-m_origX)/gridWidth;
+		curBlockULY = (point.y-m_origY)/gridWidth;
+	}
+
+	//CRobotDoc* pDoc = GetDocument();
+
+	if ( is_block(curBlockULY, curBlockULX ) ){
+
+		clear_block(curBlockULY,curBlockULX);
+		Invalidate();
+		UpdateWindow();
+	}else{
+
+		set_block( curBlockULY*chart_width+curBlockULX );
 		Invalidate();
 		UpdateWindow();
 	}
-	else if (m_bAddBlock)//如果处于添加block状态
-	{
-		SetBlock(curBlockULY,curBlockULX);
-		Invalidate();
-		UpdateWindow();
-	}
+
 }
+
 
 void CRobotView::ShowPara(CDC* pDC)
 {
 	CRobotDoc* pDoc = GetDocument();
-
 	int curBound = m_origX+cur_parameter.width*gridWidth+1;
 	int startX = curBound+20;
 	int startY = 20;
@@ -567,22 +574,57 @@ void CRobotView::ShowPara(CDC* pDC)
 
 	switch( m_test_method ) {
 
-	case NSGA2:
+	case kNsga2Idx:
 		{
-			num_generation = pDoc->GARoad->curGenNum ;
+			num_generation = pDoc->method_nsga2->curGenNum ;
 		}
 		break ;
-	case MOEAD:
+	case kMoeadIdx:
 		{
-			num_generation = pDoc->MOEAD->cur_generation ;
+			num_generation = pDoc->method_moead->cur_generation ;
 		}
 		break ;
-	case CAEA:
+	case kCaeaIdx:
 		{
-			num_generation = pDoc->CAEA->cur_gen ;
+			num_generation = pDoc->method_caea->cur_gen ;
 		}
 		break ;
 	}
+
+	//Fitness tFit ;
+	//tFit.length_fitness = fit.length_fitness ;
+	//tFit.smoothness_fitness = fit.smoothness_fitness ;
+	//tFit.security_fitness = fit.security_fitness ;
+
+	//if (avg.size() >= 10 ) 
+	//	avg.pop() ;
+	//avg.push( tFit ) ;
+
+	double length_avg = fit.length_fitness ;
+	double smooth_avg = fit.smoothness_fitness ;
+	double security_avg = fit.security_fitness ;
+	//
+	//queue<Fitness> tmp ;
+	//for ( int i = 0 ; i < avg.size() ; i++ ) {
+
+	//	length_avg += avg.front().length_fitness ;
+	//	smooth_avg += avg.front().smoothness_fitness ;
+	//	security_avg += avg.front().security_fitness ;
+
+	//	tmp.push(avg.front()) ;
+	//	avg.pop() ;
+	//}
+
+	//for ( int i = 0 ; i < tmp.size() ; i++ ){
+
+	//	avg.push(tmp.front()) ;
+	//	tmp.pop() ;
+	//}
+	//
+	//length_avg /= avg.size() ;
+	//smooth_avg /= avg.size() ;
+	//security_avg /= avg.size() ;
+
 
 	CFont font;
 	LOGFONT lf;
@@ -609,21 +651,23 @@ void CRobotView::ShowPara(CDC* pDC)
 	pDC->TextOut(startX+120,startY,cur_generation);
 	cur_generation.Format(_T("%d"), num_generation );
 	pDC->TextOut(startX+120,startY+30,cur_generation);
-	cur_generation.Format(_T("%.3f"),fit.length_fitness);
+	cur_generation.Format(_T("%.3f"),length_avg);
 	pDC->TextOut(startX+120,startY+60,cur_generation);
-	cur_generation.Format(_T("%.3f"),fit.smoothness_fitness);
+	cur_generation.Format(_T("%.3f"),smooth_avg);
 	pDC->TextOut(startX+120,startY+90,cur_generation);
-	cur_generation.Format(_T("%.3f"),fit.security_fitness);
+	cur_generation.Format(_T("%.3f"),security_avg);
 	pDC->TextOut(startX+120,startY+120,cur_generation);
-	CPen m_ChartPen1(PS_SOLID,1,COLOR_LENGTH_GREEN);//设置划线的颜色
+
+
+	CPen m_ChartPen1(PS_SOLID,1,kColorLengthGreen);//设置划线的颜色
 	pDC->SelectObject (&m_ChartPen1);
 	pDC->MoveTo(startX+120,startY+170);
 	pDC->LineTo(startX+170,startY+170);
-	CPen m_ChartPen2(PS_SOLID,1,COLOR_SMOOTHNESS_BLUE);//设置划线的颜色
+	CPen m_ChartPen2(PS_SOLID,1,kColorSmoothnessBlue);//设置划线的颜色
 	pDC->SelectObject (&m_ChartPen2);
 	pDC->MoveTo(startX+120,startY+200);
 	pDC->LineTo(startX+170,startY+200);
-	CPen m_ChartPen3(PS_SOLID,1,COLOR_SECURITY_RED);//设置划线的颜色
+	CPen m_ChartPen3(PS_SOLID,1,kColorSecurityRed);//设置划线的颜色
 	pDC->SelectObject (&m_ChartPen3);
 	pDC->MoveTo(startX+120,startY+230);
 	pDC->LineTo(startX+170,startY+230);
@@ -637,7 +681,7 @@ void CRobotView::OnUpdateNsga2(CCmdUI *pCmdUI)
 {
 	// TODO: 在此添加命令更新用户界面处理程序代码
 
-	if ( m_test_method == NSGA2 ) {
+	if ( m_test_method == kNsga2Idx ) {
 		pCmdUI->SetCheck(true) ;
 	}else{
 		pCmdUI->SetCheck(false) ;
@@ -649,7 +693,7 @@ void CRobotView::OnUpdateMoead(CCmdUI *pCmdUI)
 {
 	// TODO: 在此添加命令更新用户界面处理程序代码
 
-	if ( m_test_method == MOEAD ) {
+	if ( m_test_method == kMoeadIdx ) {
 		pCmdUI->SetCheck(true) ;
 	}else{
 		pCmdUI->SetCheck(false) ;
@@ -661,7 +705,7 @@ void CRobotView::OnUpdateCaea(CCmdUI *pCmdUI)
 {
 	// TODO: 在此添加命令更新用户界面处理程序代码
 
-	if ( m_test_method == CAEA ) {
+	if ( m_test_method == kCaeaIdx ) {
 		pCmdUI->SetCheck(true) ;
 	}else{
 		pCmdUI->SetCheck(false) ;
@@ -672,19 +716,132 @@ void CRobotView::OnUpdateCaea(CCmdUI *pCmdUI)
 void CRobotView::OnNsga2()
 {
 	// TODO: 在此添加命令处理程序代码
-	m_test_method = NSGA2 ;
+	if ( run_state == kStop )
+		m_test_method = kNsga2Idx ;
 }
 
 
 void CRobotView::OnMoead()
 {
 	// TODO: 在此添加命令处理程序代码
-	m_test_method = MOEAD ;
+	if ( run_state == kStop )
+		m_test_method = kMoeadIdx ;
 }
 
 
 void CRobotView::OnCaea()
 {
 	// TODO: 在此添加命令处理程序代码
-	m_test_method = CAEA ;
+	if ( run_state == kStop )
+		m_test_method = kCaeaIdx ;
+}
+
+UINT ThreadFunc(LPVOID pParam)
+{
+	CRobotView* m_CurView = (CRobotView*)pParam;
+	CRobotDoc* pDoc = m_CurView->GetDocument();
+
+	run_state = kStart ;
+
+	switch ( m_CurView->m_test_method ) { 
+
+	case kNsga2Idx :
+		{
+			pDoc->method_nsga2->Execute(m_CurView);
+		}
+		break;
+	case kMoeadIdx:
+		{
+			pDoc->method_moead->Execute(m_CurView) ;
+		}
+		break ;
+	case kCaeaIdx :
+		{
+			pDoc->method_caea->Execute(m_CurView) ;
+		}
+		break ;
+	}
+
+	run_state = kStop ;
+
+
+	return 0;
+}
+
+
+void CRobotView::OnOptonly()
+{
+	optimal_only = !optimal_only ;
+	Invalidate();
+	UpdateWindow();
+}
+
+
+void CRobotView::OnUpdateOptonly(CCmdUI *pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+
+	pCmdUI->SetCheck(optimal_only) ;
+}
+
+
+void CRobotView::OnUpdateBtstart(CCmdUI *pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(run_state==kStart) ;
+}
+
+
+void CRobotView::OnUpdateBtpause(CCmdUI *pCmdUI)
+{
+	// TODO: 在此添加命令更新用户界面处理程序代码
+	pCmdUI->SetCheck(run_state==kPause) ;
+}
+
+
+void CRobotView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	switch( nChar){
+
+	case VK_SPACE :
+		{
+			if ( run_state == kStart ) OnBtpause() ;
+			else OnBtstart();
+		}
+		break ;
+	case VK_ESCAPE :
+		{
+			if ( run_state != kStop ) OnBtstop() ;
+		}
+		break ;
+	case VK_SHIFT :
+		{
+			if ( run_state == kStart ) OnOptonly() ;
+		}
+		break ;
+	}
+
+
+	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CRobotView::OnBtspdn()
+{
+	// TODO: 在此添加命令处理程序代码
+	SpeedDown() ;
+}
+
+
+void CRobotView::OnBtspup()
+{
+	// TODO: 在此添加命令处理程序代码
+	SpeedUp() ;
+}
+
+
+void CRobotView::OnBtrtsp()
+{
+	run_speed = 100 ;
 }

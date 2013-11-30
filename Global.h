@@ -11,32 +11,14 @@
 #include <memory.h>
 #include <vector>
 #include <cassert>
-//#include <algorithm>
+#include <queue>
 
 using namespace std;
 
-//#include "random.h"
-//#include "cec09.h"
-
 #define PI  3.1415926535897932384626433832795
-
-//#//#define POPSIZE 40
-//#//#define WIDTH 20
-//#//#define HEIGTH 20
-//#//#define GENNUM 500
-//#//#define PC 0.9
-//#//#define PM 0.05
-#define MAX_DIST 1000 //距离上限
+#define kMaxDist 1000 //距离上限
 #define INF 1.0e14
 #define E  2.71828182845905
-
-
-//#define EPS 1.0e-14
-//#define PI 3.14159265358979
-
-
-/*------Constants for rnd_uni()--------------------------------------------*/
-
 #define IM1 2147483563
 #define IM2 2147483399
 #define AM (1.0/IM1)
@@ -56,9 +38,8 @@ double rnd_uni(long *idum);
 
 //------------- Parameters in test instance ------------------
 
-const int /*nvar, */N_OBJ = 3 ;                    //  the number of variables and objectives
+const int /*nvar, */kObjNum = 3 ;                    //  the number of variables and objectives
 //extern double  mymoving;
-
 ///////////////////////////////////////////////////////////////////
 //#Added on 2013/9/9////////////////////////////////////////
 extern double cross_rate ;
@@ -68,47 +49,55 @@ extern double mutation_rate ;
 extern vector<int> path_length ;
 extern vector<int> path_security ;
 extern vector<int> path_smoothness ;
-
 //////////////////////////////////////////////////////////////////
 //# Added on 2013/9/21 ////////////////////////////////////
-const int SECURITY = 0 ;
-const int SMOOTHNESS = 1 ;
-const int LENGTH = 2 ;
-const int EVAL_WEIGHT = 1000 ;//100000
+const int kSecurity = 0 ;
+const int kSmoothness = 1 ;
+const int kLength = 2 ;
+const int kEvalWeight = 1000 ;//100000
 
-struct Fitness
+extern int run_speed ;
+
+class Fitness
 {
+public:
+
 	double length_fitness;//对个体长度的评价
 	double smoothness_fitness;//对个体光滑度的评价
 	double security_fitness;//对个体安全性的评价
+
+	Fitness() {
+
+		length_fitness = 0.0 ;
+		smoothness_fitness = 0.0 ;
+		security_fitness = 0.0 ;
+	}
+
+	void clear() ;
 };
 
 typedef struct Parameter
 {
 	int pSize;
-	int T;
-	double propC;
-	double propM;
+	int total_gen;
+	double pop_cross_rate;
+	double pop_mutation_rate;
 	int width;
 	int height;
 	bool length;
 	bool smooth;
 	bool security;
+	vector<int> chart ;
 }Para;
 
 extern Para cur_parameter;
 
-extern Fitness fit ;
-
-//# for tmp //////////////////////////////////////////////////////
-const int NEIGHBORHOOD_SIZE = 5 ;
+const int kNeighborhoodSize = 10 ;
 
 extern double divide ;
 ///////////////////////////////////////////////////////////////////
-
-
 //double  lowBound = 0,   uppBound = 1;   //  lower and upper bounds of variables
-const int VAR_MAX_LENGTH = 30 ;
+const int kVarMaxLength = 30 ;
 
 //void obj_eval_ywq(vector <double>& x_var, vector <double>& y_obj);
 
@@ -127,12 +116,8 @@ extern double yHypervolumeRefPoint_BottomLeft ;
 
 extern double  lowBound[], uppBound[];
 
-//******** Common parameters in MOEAs **********************************************
+
 extern int		total_gen ;    //  the maximal number of generations
-//	total_run ;//,//1,      //  the maximal number of runs
-//	population_size ;    //  the population size
-//	nfes;             //  the number of function evluations
-//**********************************************************************************
 
 //------------- Parameters in random number ------------------
 extern int     seed ;
@@ -147,9 +132,72 @@ extern int	 etax, etam  ;   // distribution indexes of crossover and mutation
 
 ///////////////////////////////////////////////////////////////////////
 //# 2013/9/4////////////////////////////////////////////////////////
-TCompare ParetoCompare(vector <double> & y_obj1, vector <double>& y_obj2);
-void quicksort_increasing(vector <vector<double>> &paretofront, int nPoints);
+TCompare ParetoCompare(const vector <double> & y_obj1, const vector <double>& y_obj2);
+TCompare ParetoCompare(const double* y_obj1, const double* y_obj2) ;
+double SearchRowNearest( const int& x0, const int& y0, const int& curLin, const double& preMin, int& minX ) ;
+
+void QuickSortIncreasing(vector <vector<double>> &paretofront, int nPoints);
 double hv2(vector <vector<double>> &paretofront);
 
+////////////////////////////////////////////////////////////
+//# 2013/10/22 ///////////////////////////////////////////
+int LoadParameter(Para& para )    ;
+int SaveParameter(Para& para) ;
+void DefaultInitParameter() ;
+
+const char kFileName[] = "config.ini" ;
+
+//# 2013/11/2 //////////////////////////////////////
+extern int run_state ;
+
+const int kStop = 0 ;
+const int kStart = 1 ;
+const int kPause = 2 ;
+
+const int kChartLength = 250 ;
+
+const int kNsga2Idx = 0 ;
+const int kMoeadIdx = 1 ;
+const int kCaeaIdx = 2 ;
+
+const int kNotIndex = -1 ;
+
+const int kTimes = 1 ;
+
+const double kHalfSqrt2 = 0.707 ;
+
+extern bool optimal_only; 
+
+extern double length_pun ;
+//const double kSmoothPun = 
+
+extern queue<Fitness> avg ;
+
+const COLORREF kColorLengthGreen = RGB( 0, 255, 0 ) ;
+const COLORREF kColorSmoothnessBlue = RGB( 250, 200, 0 ) ;
+const COLORREF kColorSecurityRed = RGB( 200, 0, 200 ) ;
+
+extern Fitness fit ;
+extern vector<vector<double>> total_fitness ;
+extern vector<vector<double>> dominated_fitness ;
+extern vector<vector<double>> dominating_fitness ;
+
+extern int obj1, obj2 ;
+
+void SelectObj() ;
+
+double EvaluateLength( const vector<int>& x_var, const int& n ) ;
+double EvaluateSmoothness( const vector<int>& x_var, const int& n ) ;
+double EvaluateSecurity( const vector<int>& x_var, const int& n  );
+int CheckSecurity( const vector<int>& x_var, const int& idx,const int& w, const int& h ) ;
+int BlockNum( const vector<int>& x_var, const int& n ) ;
+
+int ObjEval( const vector<int>x_var, const int& index, vector<double>& y_obj ) ;
+void GetBestFit( const int& i_obj/*, vector<int> &path */) ;
+
+void SpeedUp() ;
+void SpeedDown() ;
+
+extern fstream fo ;
 
 #endif

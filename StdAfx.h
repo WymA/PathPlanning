@@ -20,9 +20,9 @@
 #include <afxcmn.h>			// MFC support for Windows Common Controls
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
-#include "MyGA.h"
-class TMOEAD ;
-class CSNGA ;
+#include "NSGA2.h"
+class MOEAD ;
+class CAEA ;
 //extern Para cur_parameter;
 
 //{{AFX_INSERT_LOCATION}}

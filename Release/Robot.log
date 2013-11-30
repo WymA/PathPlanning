@@ -1,0 +1,102 @@
+﻿生成启动时间为 2013/11/28 14:36:16。
+     1>项目“C:\Users\Administator\Desktop\资料srp\锥面积进化算法SRP\RobotRoute\Robot.vcxproj”在节点 2 上(build 个目标)。
+     1>InitializeBuildStatus:
+         正在创建“.\Release\Robot.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+       ClCompile:
+         所有输出均为最新。
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Ob1 /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _VC80_UPGRADE=0x0600 /D _MBCS /D _AFXDLL /GF /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp".\Release/Robot.pch" /Fo".\Release/" /Fd".\Release/vc100.pdb" /Gd /TP /analyze- /errorReport:prompt CAEA.cpp MOEAD.cpp MainFrm.cpp NSGA2.cpp Robot.cpp RobotDoc.cpp RobotView.cpp SetPara.cpp
+         CAEA.cpp
+     1>CAEA.cpp(495): warning C4018: “<”: 有符号/无符号不匹配
+     1>CAEA.cpp(498): warning C4018: “<”: 有符号/无符号不匹配
+     1>CAEA.cpp(500): warning C4018: “<”: 有符号/无符号不匹配
+     1>CAEA.cpp(516): warning C4018: “<”: 有符号/无符号不匹配
+     1>CAEA.cpp(568): warning C4018: “<”: 有符号/无符号不匹配
+     1>CAEA.cpp(590): warning C4018: “<”: 有符号/无符号不匹配
+     1>CAEA.cpp(606): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\administator\desktop\资料srp\锥面积进化算法srp\robotroute\Recomb.h(312): warning C4018: “<”: 有符号/无符号不匹配
+                 CAEA.cpp(629): 参见对正在编译的函数 模板 实例化“int is_series<CAEAInd>(T &,const int &)”的引用
+                 with
+                 [
+                     T=CAEAInd
+                 ]
+     1>c:\users\administator\desktop\资料srp\锥面积进化算法srp\robotroute\Recomb.h(76): warning C4018: “<”: 有符号/无符号不匹配
+                 CAEA.cpp(822): 参见对正在编译的函数 模板 实例化“void GenMutation<CAEAInd>(T &)”的引用
+                 with
+                 [
+                     T=CAEAInd
+                 ]
+         MOEAD.cpp
+     1>MOEAD.cpp(53): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(157): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(160): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(161): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(176): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(210): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(279): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(287): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(367): warning C4018: “<”: 有符号/无符号不匹配
+     1>MOEAD.cpp(383): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\administator\desktop\资料srp\锥面积进化算法srp\robotroute\Recomb.h(76): warning C4018: “<”: 有符号/无符号不匹配
+                 MOEAD.cpp(228): 参见对正在编译的函数 模板 实例化“void GenMutation<CIndividual>(T &)”的引用
+                 with
+                 [
+                     T=CIndividual
+                 ]
+     1>c:\users\administator\desktop\资料srp\锥面积进化算法srp\robotroute\Recomb.h(312): warning C4018: “<”: 有符号/无符号不匹配
+                 MOEAD.cpp(395): 参见对正在编译的函数 模板 实例化“int is_series<CIndividual>(T &,const int &)”的引用
+                 with
+                 [
+                     T=CIndividual
+                 ]
+         MainFrm.cpp
+         NSGA2.cpp
+     1>NSGA2.cpp(161): warning C4018: “<”: 有符号/无符号不匹配
+     1>NSGA2.cpp(177): warning C4018: “<”: 有符号/无符号不匹配
+     1>NSGA2.cpp(356): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>NSGA2.cpp(444): warning C4018: “<”: 有符号/无符号不匹配
+     1>NSGA2.cpp(1045): warning C4018: “<”: 有符号/无符号不匹配
+         Robot.cpp
+     1>Robot.cpp(58): warning C4996: 'CWinApp::Enable3dControls': CWinApp::Enable3dControls is no longer needed. You should remove this call.
+                 C:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\afxwin.h(5344) : 参见“CWinApp::Enable3dControls”的声明
+         RobotDoc.cpp
+         RobotView.cpp
+     1>RobotView.cpp(229): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(105) : 参见“strcpy”的声明
+     1>RobotView.cpp(329): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+     1>RobotView.cpp(329): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+     1>RobotView.cpp(633): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(105) : 参见“strcpy”的声明
+         SetPara.cpp
+     1>SetPara.cpp(58): warning C4800: “int”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>SetPara.cpp(60): warning C4800: “int”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>SetPara.cpp(62): warning C4800: “int”: 将值强制为布尔值“true”或“false”(性能警告)
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D NDEBUG /D _VC80_UPGRADE=0x0600 /D _AFXDLL /l"0x0804" /nologo /fo".\Release\Robot.res" Robot.rc 
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:".\Release/Robot.exe" /INCREMENTAL:NO /NOLOGO /MANIFEST /ManifestFile:".\Release\Robot.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:".\Release/Robot.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\Release\Robot.lib" /MACHINE:X86 .\Release\Robot.res
+         .\Release/Chart.obj
+         .\Release/Common.obj
+         .\Release/Global.obj
+         .\Release/MainFrm.obj
+         .\Release/MOEADInd.obj
+         .\Release/MOEAD.obj
+         .\Release/NSGA2.obj
+         .\Release/Robot.obj
+         .\Release/RobotDoc.obj
+         .\Release/RobotView.obj
+         .\Release/SetPara.obj
+         .\Release/CAEA.obj
+         .\Release/CAEAInd.obj
+         .\Release/StdAfx.obj
+         Robot.vcxproj -> C:\Users\Administator\Desktop\资料srp\锥面积进化算法SRP\RobotRoute\.\Release\Robot.exe
+       Manifest:
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:".\Release/Robot.exe;#1" /manifest .\Release\Robot.exe.intermediate.manifest "C:\Program Files\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
+       FinalizeBuildStatus:
+         正在删除文件“.\Release\Robot.unsuccessfulbuild”。
+         正在对“.\Release\Robot.lastbuildstate”执行 Touch 任务。
+     1>已完成生成项目“C:\Users\Administator\Desktop\资料srp\锥面积进化算法SRP\RobotRoute\Robot.vcxproj”(build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:03.24

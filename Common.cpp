@@ -25,12 +25,12 @@ void minfastsort(double* x, int* idx, int n, int m)               //sort the vec
 }
 
 
-double dist_vector(vector <double> &vec1, vector <double> &vec2)        //the distance of two vector
+double DistVector(vector <double> &vec1, vector <double> &vec2)        //the distance of two vector
 {
 	int dim = vec1.size();
     double sum = 0;
 	for(int n=0; n<dim; n++)
-	    sum+=(vec1[n] - vec2[n])*(vec1[n] - vec2[n]);
+	    sum+=(vec1[n] - vec2[n])*(vec1[n] - vec2[n]) ;
 
 	return sqrt(sum);
 }
@@ -40,7 +40,7 @@ double observepoint_dist_vector(vector <double> &vec1, vector <double> &vec2)
 	int dim = vec1.size();
 	double sum = 0;
 	for(int n=0; n<dim; n++)
-		sum+=(vec1[n] - (vec2[n] ) )*(vec1[n] - (vec2[n] ));
+		sum+=(vec1[n] - (vec2[n] ) )*(vec1[n] - (vec2[n] )) ;
 	return sqrt(sum);
 }
 
@@ -64,7 +64,7 @@ double observepoint_dist_vector(vector <double> &vec1, vector <double> &vec2)
 //	return sqrt(sum);
 //}
 
-//double nofn_optimumpoint_dist_vector(vector <double> &vec1, vector<CSNGAInd> &vec2, int n_fn)
+//double nofn_optimumpoint_dist_vector(vector <double> &vec1, vector<CAEAInd> &vec2, int n_fn)
 //{
 //	int dim = vec1.size();
 //	double sum = 0;

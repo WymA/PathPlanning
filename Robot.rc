@@ -83,12 +83,13 @@ IDR_MAINFRAME TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_BTSTART
     BUTTON      ID_BTPAUSE
-    SEPARATOR
-    BUTTON      ID_BTERASE
-    BUTTON      ID_BTADD
-    SEPARATOR
+    BUTTON      ID_BTSTOP
+    BUTTON      ID_OPTONLY
     BUTTON      ID_BTPARA
     SEPARATOR
+    BUTTON      ID_BTSPUP
+    BUTTON      ID_BTSPDN
+    BUTTON      ID_BTRTSP
     BUTTON      ID_APP_ABOUT
 END
 
@@ -113,11 +114,6 @@ BEGIN
         MENUITEM "参数",                          ID_MENUPARA
         MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                      ID_APP_EXIT
-    END
-    POPUP "障碍物"
-    BEGIN
-        MENUITEM "擦除",                          ID_MENUERASE
-        MENUITEM "添加",                          ID_MENUADD
     END
     POPUP "查看(&V)"
     BEGIN
@@ -155,13 +151,19 @@ END
 // Dialog
 //
 
-IDD_DIALOGPARA DIALOGEX 0, 0, 143, 182
+IDD_DIALOGPARA DIALOGEX 0, 0, 143, 204
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "设置参数"
 FONT 10, "System", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "确定",IDOK,27,157,34,14
-    PUSHBUTTON      "取消",IDCANCEL,82,156,34,15
+    CONTROL         "长度",IDC_LENGTH,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,29,140,32,10
+    CONTROL         "平滑度",IDC_SMOOTH,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,62,140,32,10
+    CONTROL         "安全性",IDC_SAFE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,95,140,40,10
+    CONTROL         "长度",IDC_LENGTH2,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,29,154,32,10
+    CONTROL         "平滑度",IDC_SMOOTH2,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,62,154,32,10
+    CONTROL         "安全性",IDC_SAFE2,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,95,154,40,10
+    DEFPUSHBUTTON   "确定",IDOK,27,174,34,15
+    PUSHBUTTON      "取消",IDCANCEL,82,174,34,15
     EDITTEXT        IDC_EDITHEIGHT,70,21,45,12,ES_CENTER | ES_AUTOHSCROLL
     EDITTEXT        IDC_EDITWIDTH,70,39,45,12,ES_CENTER | ES_AUTOHSCROLL
     EDITTEXT        IDC_EDITCROSS,70,56,45,12,ES_CENTER | ES_AUTOHSCROLL
@@ -174,10 +176,9 @@ BEGIN
     CTEXT           "变异概率:",IDC_STATICMUTATION,21,74,39,10,SS_CENTERIMAGE
     CTEXT           "种群规模:",IDC_STATICPOP,21,91,39,10,SS_CENTERIMAGE
     CTEXT           "进化代数:",IDC_STATICGENNUM,21,108,39,10,SS_CENTERIMAGE
-    CONTROL         "长度",IDC_LENGTH,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,15,141,32,10
-    CONTROL         "平滑度",IDC_SMOOTH,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,47,141,40,10
-    CONTROL         "安全性",IDC_SAFE,"Button",BS_AUTORADIOBUTTON,87,141,40,10
-    LTEXT           "Pareto显示选择：",IDC_STATIC,15,126,62,8
+    LTEXT           "Pareto选择：",IDC_STATIC,15,126,46,8
+    LTEXT           "Obj1:",IDC_STATIC,7,140,17,10
+    LTEXT           "Obj2:",IDC_STATIC,7,154,17,10
 END
 
 IDD_FILE DIALOG 0, 0, 143, 158
@@ -249,7 +250,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 136
         TOPMARGIN, 10
-        BOTTOMMARGIN, 175
+        BOTTOMMARGIN, 197
     END
 
     IDD_FILE, DIALOG
@@ -383,9 +384,21 @@ BEGIN
     ID_BTSTART              "启动路径规划"
     ID_BTSTOP               "停止路径规划"
     ID_BTERASE              "擦除障碍物"
-    ID_BTADD                "添加障碍物"
+    ID_BTADD                "仅显示最优解"
     ID_BTPARA               "设置参数"
     ID_BTPAUSE              "暂停进化"
+END
+
+STRINGTABLE
+BEGIN
+    ID_OPTONLY              "只显示最优解"
+    ID_BTSPUP               "加速运行"
+END
+
+STRINGTABLE
+BEGIN
+    ID_BTSPDN               "减速运行"
+    ID_BTRTSP               "重置速度"
 END
 
 #endif    // 中文(简体，中国) resources

@@ -10,16 +10,11 @@
 #endif // _MSC_VER > 1000
 #include "RobotDoc.h"
 
-//////////////////////////////////////////////////////////////
-//# Added on 2013/9/11 //////////////////////////////////
-const int NSGA2 = 0 ;
-const int MOEAD = 1 ;
-const int CAEA = 2 ;
+//////////////////////////////////////////////////////////////////
+//## 2013/11/5 //////////////////////////////////////////////////
+UINT ThreadFunc(LPVOID pParam) ;
 
-const COLORREF COLOR_LENGTH_GREEN = RGB( 0, 255, 0 ) ;
-const COLORREF COLOR_SMOOTHNESS_BLUE = RGB( 0, 0, 255 ) ;
-const COLORREF COLOR_SECURITY_RED = RGB( 255, 0, 0 ) ;
-
+/////////////////////////////////////////////////////////////////////
 
 class CRobotView : public CView
 {
@@ -41,12 +36,11 @@ public:
 	bool m_bAddBlock;
 	bool m_bEraseBlock;
 	bool m_bSetPara;
-	//bool m_bAlreadyStarted;
-	//bool m_bAlreadyRun;
 	bool m_bNeedInit;
 	bool* m_preState;
 	int m_CurOpID;
 	CWinThread* m_pThread;
+	fstream ff;
 
 // Operations
 public:
@@ -54,6 +48,9 @@ public:
 	void DrawBlocks(CDC* pDC,int originX,int originY);
 	void DrawPath(CDC* pDC,vector<int>* path, COLORREF m_PathColor);
 	void ShowPara(CDC* pDC);
+	void DrawPareto(CDC* pDC,int originX,int originY) ;
+	void DrawAll(CDC* pDC) ;
+	void DrawPoint( CDC* pDC,int originX,int originY ) ;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -71,25 +68,25 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
+public :
+	//##2013/11/3
+	//NSGA2 *method_nsga2;
+	//MOEAD *method_moead ;
+	//CAEA *method_caea ;
 
 // Generated message map functions
 protected:
 	//{{AFX_MSG(CRobotView)
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnBtstart();
-	afx_msg void OnBterase();
-	afx_msg void OnBtadd();
 	afx_msg void OnBtpara();
 	afx_msg void OnBtresult() ;
-	afx_msg void OnMenuadd();
-	afx_msg void OnMenuerase();
 	afx_msg void OnMenupara();
 	afx_msg void OnMenustart();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnBtpause();
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
 public:
 	afx_msg void OnUpdateNsga2(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateMoead(CCmdUI *pCmdUI);
@@ -97,6 +94,16 @@ public:
 	afx_msg void OnNsga2();
 	afx_msg void OnMoead();
 	afx_msg void OnCaea();
+	afx_msg void OnBtstop();
+	afx_msg void OnOptonly();
+	afx_msg void OnUpdateOptonly(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtstart(CCmdUI *pCmdUI);
+//	afx_msg void OnUpdateBtstop(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtpause(CCmdUI *pCmdUI);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnBtspdn();
+	afx_msg void OnBtspup();
+	afx_msg void OnBtrtsp();
 };
 
 #ifndef _DEBUG  // debug version in RobotView.cpp

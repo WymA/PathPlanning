@@ -147,7 +147,7 @@
     </ClCompile>
     <ClCompile Include="MOEADInd.cpp" />
     <ClCompile Include="MOEAD.cpp" />
-    <ClCompile Include="MyGA.cpp" />
+    <ClCompile Include="NSGA2.cpp" />
     <ClCompile Include="Robot.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -164,8 +164,8 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="SNGA.cpp" />
-    <ClCompile Include="SNGAInd.cpp" />
+    <ClCompile Include="CAEA.cpp" />
+    <ClCompile Include="CAEAInd.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -186,15 +186,15 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MOEADInd.h" />
     <ClInclude Include="MOEAD.h" />
-    <ClInclude Include="MyGA.h" />
+    <ClInclude Include="NSGA2.h" />
     <ClInclude Include="Recomb.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="RobotDoc.h" />
     <ClInclude Include="RobotView.h" />
     <ClInclude Include="SetPara.h" />
-    <ClInclude Include="SNGA.h" />
-    <ClInclude Include="SNGAInd.h" />
+    <ClInclude Include="CAEA.h" />
+    <ClInclude Include="CAEAInd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>

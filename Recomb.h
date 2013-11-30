@@ -2,7 +2,7 @@
 #define _RECOMBINATION_H_
 
 
-//#include "individual.h"
+//#include "Individual.h"
 
 /* Routine for real polynomial mutation of an T */
 
@@ -70,33 +70,38 @@ void realmutation(T &ind, double rate)
 ///////////////////////////////////////////////////////////////////////////////
 //##Added on 2013/9/9///////////////////////////////////////////////////
 template <class T>
-void gen_mutation( T& ind )
+void GenMutation( T& ind )
 {
-	double p = rand()%1000/1000.0;
-	if( p < mutation_rate && ind.x_var.size() > 2){
 
-		//随机产生变异的位置，不能为头和尾
-		int mut_point;
-		mut_point = 1 + rand()%(ind.x_var.size() - 2);
-		int bSeries = is_series(ind, mut_point);
-		//若该点与前后两点连续则不变异
-		if(bSeries != 2){
+	for ( int mut_point = 2 ; mut_point < ind.x_var.size()-1 ; mut_point++ ) {
 
-			//随机变异出一位数，可以取道起点和终点，这里可能出错
-			//变异出的不可以是障碍物，如果是障碍物则不变异
-			int new_value = rand()%(out_num+1);
-			int x = new_value%chart_width;
-			int y = new_value/chart_width;
+		double p = rand()%1000/1000.0;
 
-			if(chart[y][x] == 0)
-				ind.x_var[mut_point] = new_value;
+
+		if( //##Added on 2013/9/23 //////////////////////////////////
+			chart[mut_point] == 1 || //##if it is blocked, mutate. ///
+			p < mutation_rate ){
+
+			//若该点与前后两点连续则不变异
+			if(is_series(ind, mut_point) != 2  ){
+
+				int new_value = rand()%(out_num+1);
+
+				if(chart[new_value] == 0) {
+
+					ind.x_var[mut_point] = new_value;
+					//break ;
+				}
+			}
+
+		
 		}
 	}
 }
 
 
 template <class T>
-void gen_crossover( T& parent1, T& parent2, T& child1, T& child2 ) 
+void GenCrossover( T& parent1, T& parent2, T& child1, T& child2 ) 
 {
 	double p = rand()%1000/1000.0;
 	int Parent1Length = parent1.x_var.size(); //第一个以及第二个父个体长度
@@ -146,7 +151,7 @@ void real_sbx_xoverA(T &parent1, T &parent2, T &child1, T &child2)
 	double alpha, beta, betaq;
 	double eta_c = etax;
 
-	if (rnd_uni(&rnd_uni_init) <= 1.0) {
+	if (rnd_uni(&rnd_uni_init) <= cross_rate ) {
 
 		for ( int i = 0 ; i < nvar ; i++ ){//#Start a big loop;
 
@@ -279,7 +284,7 @@ void real_sbx_xoverA(T &parent1, T &parent2, T &child1, T &child2)
 //}
 
 //
-//double TMOEAD::calc_distance()
+//double MOEAD::calc_distance()
 //{
 //	double distance = 0;
 //	for(int i=0; i<ps.size(); i++){
@@ -287,7 +292,7 @@ void real_sbx_xoverA(T &parent1, T &parent2, T &child1, T &child2)
 //		double min_d = 1.0e+10;
 //		for(int j=0; j<population.size(); j++){
 //
-//			double d = dist_vector(ps[i].y_obj, population[j].indiv.y_obj);
+//			double d = DistVector(ps[i].y_obj, population[j].indiv.y_obj);
 //			if(d<min_d)  min_d = d;
 //		}
 //		distance+= min_d;

@@ -17,13 +17,6 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	//MyGA *GARoad;
-	MyGA *GARoad;
-	//int generation;
-
-	TMOEAD *MOEAD ;
-	CSNGA *CAEA ;
-
 // Operations
 public:
 // Overrides
@@ -34,6 +27,13 @@ public:
 	virtual void Serialize(CArchive& ar);
 	//}}AFX_VIRTUAL
 
+
+	NSGA2 *method_nsga2;
+	MOEAD *method_moead ;
+	CAEA *method_caea ;
+
+	void DelMethod() ;
+	void InitMethod() ;
 // Implementation
 public:
 	virtual ~CRobotDoc();

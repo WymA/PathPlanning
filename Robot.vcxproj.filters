@@ -33,9 +33,6 @@
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MyGA.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MOEAD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,16 +42,19 @@
     <ClCompile Include="Global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SNGA.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SNGAInd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Chart.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NSGA2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAEA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAEAInd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -85,9 +85,6 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyGA.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -100,16 +97,19 @@
     <ClInclude Include="Recomb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SNGA.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SNGAInd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Chart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NSGA2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAEA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAEAInd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

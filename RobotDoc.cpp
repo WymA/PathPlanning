@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "Robot.h"
 #include "MOEAD.h"
-#include "SNGA.h"
+#include "CAEA.h"
 #include "RobotDoc.h"
 
 #ifdef _DEBUG
@@ -31,42 +31,63 @@ END_MESSAGE_MAP()
 CRobotDoc::CRobotDoc()
 {
 	// TODO: add one-time construction code here
-	cur_parameter.height = 10;
-	cur_parameter.width = 10;
-	cur_parameter.propC = 0.9;//0.6;
-	cur_parameter.propM = 0.05;//0.01;
-	cur_parameter.pSize = 40;//50;
- 	cur_parameter.T = 500;//50;
-	cur_parameter.length = TRUE ;
-	cur_parameter.smooth = TRUE ;
-	cur_parameter.security = FALSE ;
-	//GARoad = new MyGA(cur_parameter);	
+	if ( 0 != LoadParameter(cur_parameter) ){
 
-	InitChart() ; 
-	DefaultInitChart() ;
+		DefaultInitParameter() ;
+	}
+
+	//init_globe() ;
+	init_chart() ; 
+	InitMethod() ;
 	srand((unsigned)time(NULL)) ;
 
-	GARoad = new MyGA(cur_parameter);
-	MOEAD = new TMOEAD() ;
-	CAEA = new CSNGA() ;
+	fo.open("test_myga_evl.txt", std::ios::out);
+
 }
 
 CRobotDoc::~CRobotDoc()
 {
-	delete GARoad ;
-	delete MOEAD ;
-	DeleteChart() ;
+	SaveParameter(cur_parameter) ;
+
+	delete_chart() ;
+	DelMethod() ;
+	//delete_globe() ;
+	fo.close() ;
+	
 }
+
+void CRobotDoc::DelMethod() 
+{
+	total_fitness.clear() ;
+	dominated_fitness.clear() ;
+	dominating_fitness.clear() ;
+
+	delete method_nsga2 ;
+	delete method_moead ;
+	delete method_caea ;
+}
+
+
+void CRobotDoc::InitMethod() 
+{
+	total_fitness = vector<vector<double>>(cur_parameter.pSize , vector<double>( kObjNum, 0.0 ) );
+	dominated_fitness = vector<vector<double>>(0, vector<double>( kObjNum, 0.0 ) );
+	dominating_fitness = vector<vector<double>>(0, vector<double>( kObjNum, 0.0 ) );
+
+	method_nsga2 = new NSGA2() ;
+	method_moead = new MOEAD() ;
+	method_caea = new CAEA() ;
+
+	SelectObj() ;
+
+	length_pun = (chart_width-1)/2 ;
+}
+
 
 BOOL CRobotDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
-
-	// TODO: add reinitialization code here
-	// (SDI documents will reuse this document)
-	//GARoad->releaseData();
-	GARoad->Init(cur_parameter);
 
 	return TRUE;
 }
@@ -88,6 +109,8 @@ void CRobotDoc::Serialize(CArchive& ar)
 	}
 }
 
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CRobotDoc diagnostics
 
@@ -101,4 +124,5 @@ void CRobotDoc::Dump(CDumpContext& dc) const
 {
 	CDocument::Dump(dc);
 }
+
 #endif //_DEBUG

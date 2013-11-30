@@ -14,9 +14,9 @@ class CIndividual{
 
 public:
 
-	double evaluate_length( const int& n  ) ;
-	double evaluate_smoothness( const int& n ) ;
-	double evaluate_security(const int& n) ;
+	//double EvaluateLength( const int& n  ) ;
+	//double EvaluateSmoothness( const int& n ) ;
+	//double EvaluateSecurity(const int& n) ;
 
 public:
 	CIndividual();
@@ -24,15 +24,18 @@ public:
 
 	vector <int> x_var ;
 	vector <double> y_obj ;
+
+	int n_blocked ;
+	//bool is_pass ;
 	//int    rank;
 	//int    count;
 
-	void   rnd_init();
-	void   obj_eval( const int& i );
+	void   RandomInit();
+	void   ObjEvaluate( const int& i );
 	//void   show_objective();
 	//void   show_variable();
 
-	bool check( CIndividual const* ind, const int& n ) ;
+	//bool CheckSecurity( CIndividual const* ind, const int& n ) ;
 
 	bool   operator<(const CIndividual &ind2);
 	bool   operator<<(const CIndividual &ind2);
@@ -58,7 +61,7 @@ public:
 	//void show();
 
 	CIndividual     indiv;
-	vector <double> namda;    
+	vector <double> lambda;    
 	vector <int>    table;     // the vector for the indexes of neighboring subproblems
 	vector <int>    array;
 

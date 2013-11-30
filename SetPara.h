@@ -21,9 +21,11 @@ public:
 	double m_Mutation;
 	int m_PopSize;
 	int m_GenNum;
-	int m_Length;
-	int m_Smooth;
-	int m_Safe;
+	bool m_Length;
+	bool m_Smooth;
+	bool m_Safe;
+
+
 
 // Dialog Data
 	//{{AFX_DATA(SetPara)
@@ -42,6 +44,9 @@ public:
 // Implementation
 protected:
 
+	int pre_state ;
+	int pre_state2 ;
+
 	// Generated message map functions
 	//{{AFX_MSG(SetPara)
 	virtual void OnOK();
@@ -56,6 +61,13 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL OnInitDialog();
+//	afx_msg void OnBnClickedLength();
+	afx_msg void OnBnClickedLength();
+	afx_msg void OnBnClickedSmooth();
+	afx_msg void OnBnClickedSafe();
+	afx_msg void OnBnClickedLength2();
+	afx_msg void OnBnClickedSmooth2();
+	afx_msg void OnBnClickedSafe2();
 };
 
 //{{AFX_INSERT_LOCATION}}
