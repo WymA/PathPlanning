@@ -286,3 +286,4 @@ paket-files/
 *.out
 *.app
 
+/.vscode
