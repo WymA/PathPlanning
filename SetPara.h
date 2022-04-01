@@ -56,6 +56,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL OnInitDialog();
+	afx_msg void OnStnClickedStaticwidth();
+	afx_msg void OnStnClickedStaticmutation();
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -287,3 +287,5 @@ paket-files/
 *.app
 
 /.vscode
+/all_pop.out
+/params.out

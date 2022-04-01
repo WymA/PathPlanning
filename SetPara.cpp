@@ -67,6 +67,8 @@ BEGIN_MESSAGE_MAP(SetPara, CDialog)
 	ON_EN_CHANGE(IDC_EDITPOP, OnChangeEditpop)
 	ON_EN_CHANGE(IDC_EDITWIDTH, OnChangeEditwidth)
 	//}}AFX_MSG_MAP
+	ON_STN_CLICKED(IDC_STATICWIDTH, &SetPara::OnStnClickedStaticwidth)
+	ON_STN_CLICKED(IDC_STATICMUTATION, &SetPara::OnStnClickedStaticmutation)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -174,4 +176,16 @@ BOOL SetPara::OnInitDialog()
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
+}
+
+
+void SetPara::OnStnClickedStaticwidth()
+{
+	// TODO: Add your control notification handler code here
+}
+
+
+void SetPara::OnStnClickedStaticmutation()
+{
+	// TODO: Add your control notification handler code here
 }

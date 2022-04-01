@@ -35,10 +35,10 @@ MyGA::MyGA(Para &param)
 	m_bAlreadyStarted = false;
 	m_bAlreadyRun = false;
 	curGenNum = 0;
-	//³õÊ¼»¯²ÎÊı
+	//åˆå§‹åŒ–å‚æ•°
 	Init(param);
 	nobj = 3;
-	//³õÊ¼»¯int **chart
+	//åˆå§‹åŒ–int **chart
 	chart = new int* [chartHeight];
 
 	for ( int i = 0; i < chartHeight ; ++i )
@@ -46,7 +46,7 @@ MyGA::MyGA(Para &param)
 
 	for ( int i = 0; i < chartHeight ; ++i )
 		for ( int j = 0; j < chartWidth; ++j )
-			chart[i][j] = 0; //³õÊ¼Ê±Ã»ÓĞÕÏ°­Îï
+			chart[i][j] = 0; //åˆå§‹æ—¶æ²¡æœ‰éšœç¢ç‰©
 }
 
 MyGA::~MyGA()
@@ -65,29 +65,29 @@ MyGA::~MyGA()
 
 void MyGA::Init(Para &para)
 {
-	//ĞŞ¸ÄÖÖÈº¸öÌåÊı
+	//ä¿®æ”¹ç§ç¾¤ä¸ªä½“æ•°
 	setPopSize(para.pSize); 
-	//ĞŞ¸Ä½»²æ¸ÅÂÊ
+	//ä¿®æ”¹äº¤å‰æ¦‚ç‡
 	setPCross(para.propC);
-	//ĞŞ¸Ä±äÒì¸ÅÂÊ
+	//ä¿®æ”¹å˜å¼‚æ¦‚ç‡
 	setPMutation(para.propM);
-	//ĞŞ¸Ä½ø»¯´úÊı
+	//ä¿®æ”¹è¿›åŒ–ä»£æ•°
 	setGenNum(para.T);
 
-	//chartWidthºÍchartHeightµÄ¾ßÌåÖµ¸ù¾İÕ¤¸ñµÄ´óĞ¡×ö¸Ä±ä
+	//chartWidthå’ŒchartHeightçš„å…·ä½“å€¼æ ¹æ®æ …æ ¼çš„å¤§å°åšæ”¹å˜
 	chartWidth = para.width;
 	chartHeight = para.height;
 	outNum = chartHeight*chartWidth - 1;
 
 }
 
-//Éú³É³õÊ¼»¯ÖÖÈº
+//ç”Ÿæˆåˆå§‹åŒ–ç§ç¾¤
 void MyGA::InitPop(population *pop)
 {
 	for( int i = 0; i < popSize ; ++i){
 
 		InitInd(pop->ind[i]);
-		GenDelSame(pop->ind[i].xPath);//É¾³ı¸öÌåÖĞÏàÍ¬µÄ²¿·Ö
+		GenDelSame(pop->ind[i].xPath);//åˆ é™¤ä¸ªä½“ä¸­ç›¸åŒçš„éƒ¨åˆ†
 	}
 }
 
@@ -97,38 +97,38 @@ void MyGA::InitInd(individual &ind)
 	ind.xPath.clear();
 	int j = rand() % (chartHeight+chartWidth) ;
 
-	if(j < 3){//Ö»ÓĞÆğµãºÍÖÕµã
+	if(j < 3){//åªæœ‰èµ·ç‚¹å’Œç»ˆç‚¹
 
 		ind.xPath.push_back(0);
 		ind.xPath.push_back(outNum);
 
 	}else{
 
-		ind.xPath.push_back(0);//¼ÓÈëÆğµã
-		//¼ÓÈëÆğµãºÍÖÕµãÖ®¼äµÄÖµ
+		ind.xPath.push_back(0);//åŠ å…¥èµ·ç‚¹
+		//åŠ å…¥èµ·ç‚¹å’Œç»ˆç‚¹ä¹‹é—´çš„å€¼
 		for(int k = 1; k < j-1; ++k){
 
-			//ÕâÀï²úÉúµÄ³õÊ¼»¯ÖÖÈºÖĞÒ²¿ÉÄÜÓĞÖØ¸´µã
-			//ËùÒÔÔÚInitÖ®ºóÒªµ÷ÓÃGenDelSame
+			//è¿™é‡Œäº§ç”Ÿçš„åˆå§‹åŒ–ç§ç¾¤ä¸­ä¹Ÿå¯èƒ½æœ‰é‡å¤ç‚¹
+			//æ‰€ä»¥åœ¨Initä¹‹åè¦è°ƒç”¨GenDelSame
 			int n; // x, y;
 			n = rand()%outNum;
 			ind.xPath.push_back(n);
 		}
-		ind.xPath.push_back(outNum);//¼ÓÈëÖÕµã
+		ind.xPath.push_back(outNum);//åŠ å…¥ç»ˆç‚¹
 	}
 }
 
-//É¾³ıËã×Ó
+//åˆ é™¤ç®—å­
 void MyGA::GenPopDelSame(population *pop)
 {
 	for(int i = 0; i < popSize; ++i)
 		GenDelSame(pop->ind[i].xPath);
 }
-//É¾³ıÈ¾É«ÌåÖĞÏàÍ¬»ùÒòÖ®¼äµÄ²¿·Ö
+//åˆ é™¤æŸ“è‰²ä½“ä¸­ç›¸åŒåŸºå› ä¹‹é—´çš„éƒ¨åˆ†
 void MyGA::GenDelSame(vector<int>& xPath)
 {
-	int startPoint;//intVec::iterator startIter;//ËÑË÷¿ªÊ¼µÄÎ»ÖÃ
-	int findPoint;//intVec::iterator findIter;//ÕÒµ½ÖØ¸´µãµÄÎ»ÖÃ
+	int startPoint;//intVec::iterator startIter;//æœç´¢å¼€å§‹çš„ä½ç½®
+	int findPoint;//intVec::iterator findIter;//æ‰¾åˆ°é‡å¤ç‚¹çš„ä½ç½®
 	bool findFlag;
 	int k;
 	for( int j = 0 ; j < ( xPath.size() - 1 ) ; ++j )
@@ -186,7 +186,7 @@ void MyGA::GetPopBestObj(int iObj, vector<int> &path)
 
 }
 
-//Ñ¡ÔñËã×Ó
+//é€‰æ‹©ç®—å­
 void MyGA::GenSelection(population *old_pop, population *new_pop)
 {
 	int *a1, *a2;
@@ -228,7 +228,7 @@ void MyGA::GenSelection(population *old_pop, population *new_pop)
 	free(a2);
 
 }
-//½õ±êÈü
+//é”¦æ ‡èµ›
 individual* MyGA::Tournament(individual *ind1, individual  *ind2)
 {
 	int flag;
@@ -341,11 +341,11 @@ double MyGA::rndreal ( double low, double high )
 	return (low + (high-low)*randomperc());
 }
 
-//½»²æ»ùÒò
+//äº¤å‰åŸºå› 
 void MyGA::GenCross( individual *parent1, individual *parent2, individual *child1, individual *child2)
 {
 	double p = rand()%1000/1000.0;
-	int Parent1Length = parent1->xPath.size(); //µÚÒ»¸öÒÔ¼°µÚ¶ş¸ö¸¸¸öÌå³¤¶È
+	int Parent1Length = parent1->xPath.size(); //ç¬¬ä¸€ä¸ªä»¥åŠç¬¬äºŒä¸ªçˆ¶ä¸ªä½“é•¿åº¦
 	int Parent2Length = parent2->xPath.size(); //
 
 	child1->xPath.clear();
@@ -353,10 +353,10 @@ void MyGA::GenCross( individual *parent1, individual *parent2, individual *child
 
 	if ( p < Pc ) {
 
-		//Ëæ»ú²úÉúµÚÒ»¸öÒÔ¼°µÚ¶ş¸ö¸¸¸öÌåĞèÒª½»²æµÄÒ»Î»,²»ÄÜÊÇµÚÒ»Î»£¨Æğµã£©     
+		//éšæœºäº§ç”Ÿç¬¬ä¸€ä¸ªä»¥åŠç¬¬äºŒä¸ªçˆ¶ä¸ªä½“éœ€è¦äº¤å‰çš„ä¸€ä½,ä¸èƒ½æ˜¯ç¬¬ä¸€ä½ï¼ˆèµ·ç‚¹ï¼‰     
 		int Parent1CrossPoint, Parent2CrossPoint;
 
-		//ÕâÀïÒª×¢Òâ±ÜÃâÆğµã 
+		//è¿™é‡Œè¦æ³¨æ„é¿å…èµ·ç‚¹ 
 		Parent1CrossPoint = 1+rand()%(Parent1Length-1); 
 		Parent2CrossPoint = 1+rand()%(Parent2Length-1); 
 
@@ -379,7 +379,7 @@ void MyGA::GenCross( individual *parent1, individual *parent2, individual *child
 	}
 }
 
-//±äÒìËã×Ó
+//å˜å¼‚ç®—å­
 void MyGA::GenMutation(population *pop)
 {
 	for(int i = 0; i < popSize; ++i)
@@ -391,15 +391,15 @@ void MyGA::GenMutationInd(individual &ind)
 	double p = rand()%1000/1000.0;
 	if( p < Pm && ind.xPath.size() > 2){
 
-		//Ëæ»ú²úÉú±äÒìµÄÎ»ÖÃ£¬²»ÄÜÎªÍ·ºÍÎ²
+		//éšæœºäº§ç”Ÿå˜å¼‚çš„ä½ç½®ï¼Œä¸èƒ½ä¸ºå¤´å’Œå°¾
 		int mutPoint;
 		mutPoint = 1 + rand()%(ind.xPath.size() - 2);
 		int bSeries = GenIsSeries(ind, mutPoint);
-		//Èô¸ÃµãÓëÇ°ºóÁ½µãÁ¬ĞøÔò²»±äÒì
+		//è‹¥è¯¥ç‚¹ä¸å‰åä¸¤ç‚¹è¿ç»­åˆ™ä¸å˜å¼‚
 		if(bSeries != 2){
 
-			//Ëæ»ú±äÒì³öÒ»Î»Êı£¬¿ÉÒÔÈ¡µÀÆğµãºÍÖÕµã£¬ÕâÀï¿ÉÄÜ³ö´í
-			//±äÒì³öµÄ²»¿ÉÒÔÊÇÕÏ°­Îï£¬Èç¹ûÊÇÕÏ°­ÎïÔò²»±äÒì
+			//éšæœºå˜å¼‚å‡ºä¸€ä½æ•°ï¼Œå¯ä»¥å–é“èµ·ç‚¹å’Œç»ˆç‚¹ï¼Œè¿™é‡Œå¯èƒ½å‡ºé”™
+			//å˜å¼‚å‡ºçš„ä¸å¯ä»¥æ˜¯éšœç¢ç‰©ï¼Œå¦‚æœæ˜¯éšœç¢ç‰©åˆ™ä¸å˜å¼‚
 			int newVal = rand()%(outNum+1);
 			int x = newVal%chartWidth;
 			int y = newVal/chartWidth;
@@ -410,7 +410,7 @@ void MyGA::GenMutationInd(individual &ind)
 	}
 }
 
-//0-²»Á¬Ğø£¬1-ÓëÇ°Ò»¸öÁ¬Ğø£¬2-ÓëÇ°ºó¶¼Á¬Ğø
+//0-ä¸è¿ç»­ï¼Œ1-ä¸å‰ä¸€ä¸ªè¿ç»­ï¼Œ2-ä¸å‰åéƒ½è¿ç»­
 int MyGA::GenIsSeries(individual &ind, const int idx)
 {
 	int pre, cur, next;
@@ -441,7 +441,7 @@ int MyGA::GenIsSeries(individual &ind, const int idx)
 		return 0;
 }
 
-//²åÈëËã×Ó
+//æ’å…¥ç®—å­
 void MyGA::GenInsert(population *pop)
 {
 	for(int i = 0; i < popSize; ++i){
@@ -465,14 +465,14 @@ void MyGA::GenInsert(population *pop)
 
 int MyGA::GenInsertInd(individual &ind, int idx)
 {
-	//Èç¹ûºÍÇ°Ò»Î»Á¬ĞøÔò²»²å£¬²åÈëÖĞÖµ·¨¼ÆËã³öµÄµã
+	//å¦‚æœå’Œå‰ä¸€ä½è¿ç»­åˆ™ä¸æ’ï¼Œæ’å…¥ä¸­å€¼æ³•è®¡ç®—å‡ºçš„ç‚¹
 	int bSeries = GenIsSeries(ind, idx);
 	if( bSeries == 0 )	{
 
 		int pre = ind.xPath[idx-1];
 		int cur = ind.xPath[idx];
 		int x0, y0, x1, y1, x2, y2;
-		int x3= 0, y3 = 0;//ÕæÕıÒª²åÈëµÄĞòºÅ
+		int x3= 0, y3 = 0;//çœŸæ­£è¦æ’å…¥çš„åºå·
 		x1 = pre%chartWidth;
 		y1 = pre/chartWidth;
 		x2 = cur%chartWidth;
@@ -484,27 +484,27 @@ int MyGA::GenInsertInd(individual &ind, int idx)
 		else
 			y0 = (y1 + y2) / 2;
 
-		//·ÇÕÏ°­Îïµã£¬¿ÉÒÔ²åÈë
+		//ééšœç¢ç‰©ç‚¹ï¼Œå¯ä»¥æ’å…¥
 		if(chart[y0][x0] == 0){
 
 			x3 = x0;
 			y3 = y0;
-		}else{//ÕÏ°­Îïµã£¬ÕÒµ½Àë¸Ãµã×î½üµÄ·ÇÕÏ°­Îïµã²åÈë
+		}else{//éšœç¢ç‰©ç‚¹ï¼Œæ‰¾åˆ°ç¦»è¯¥ç‚¹æœ€è¿‘çš„ééšœç¢ç‰©ç‚¹æ’å…¥
 
 			int ySpan = max(y0, (chartHeight - 1 - y0));
 			double preMinDist, curMinDist;
-			//½«×î¶Ì¾àÀëÉèÖÃÎªÒ»¸ö´óµÄ³õÖµ
+			//å°†æœ€çŸ­è·ç¦»è®¾ç½®ä¸ºä¸€ä¸ªå¤§çš„åˆå€¼
 			preMinDist = curMinDist = MAX_DIST;
-			//ËÑË÷µ±Ç°ĞĞ
+			//æœç´¢å½“å‰è¡Œ
 			curMinDist = SearchLineNearest(x0, y0, y0, preMinDist, x3);
-			//ÔÚµ±Ç°ĞĞÖĞÕÒµ½µã
+			//åœ¨å½“å‰è¡Œä¸­æ‰¾åˆ°ç‚¹
 
 			if(curMinDist < MAX_DIST){
 
 				y3 = y0;
 			} else {
 
-				//·Ö±ğËÑË÷ÉÏÃæµÄĞĞºÍÏÂÃæµÄĞĞ
+				//åˆ†åˆ«æœç´¢ä¸Šé¢çš„è¡Œå’Œä¸‹é¢çš„è¡Œ
 				for(int j = 0; j <= ySpan; ++j)
 				{
 					if((y0 - j) >= 0)
@@ -534,7 +534,7 @@ int MyGA::GenInsertInd(individual &ind, int idx)
 		}
 
 		int ins = x3 + chartWidth*y3;
-		//ÓĞĞ§µÄ²åÈëµã
+		//æœ‰æ•ˆçš„æ’å…¥ç‚¹
 
 		if(ins != 0 && ins != ind.xPath[idx]){
 
@@ -547,11 +547,11 @@ int MyGA::GenInsertInd(individual &ind, int idx)
 	return 0;
 }
 
-//ËÑË÷µ±Ç°ĞĞ×î¶Ì¾àÀë
-//x0,y0£ºÒªÌæ»»µãµÄ x,y×ø±ê
-//curLin£ºµ±Ç°É¨ÃèĞĞµÄĞĞÖµ
-//curMin£ºÎ´É¨Ãè¸ÃĞĞÇ°×î¶Ì¾àÀë
-//minX£º¸ÃĞĞ×î¶Ì¾àÀëµãµÄx×ø±ê
+//æœç´¢å½“å‰è¡Œæœ€çŸ­è·ç¦»
+//x0,y0ï¼šè¦æ›¿æ¢ç‚¹çš„ x,yåæ ‡
+//curLinï¼šå½“å‰æ‰«æè¡Œçš„è¡Œå€¼
+//curMinï¼šæœªæ‰«æè¯¥è¡Œå‰æœ€çŸ­è·ç¦»
+//minXï¼šè¯¥è¡Œæœ€çŸ­è·ç¦»ç‚¹çš„xåæ ‡
 double MyGA::SearchLineNearest( const int x0, const int y0, const int curLin, const double preMin, int& minX )
 {
 	int xSpan = max( x0, (chartWidth-1-x0) );
@@ -579,45 +579,45 @@ double MyGA::SearchLineNearest( const int x0, const int y0, const int curLin, co
 			}
 		}
 
-		//ÒÑÕÒµ½¸ÃĞĞÉÏµÄ×î½ü¾àÀëµã
+		//å·²æ‰¾åˆ°è¯¥è¡Œä¸Šçš„æœ€è¿‘è·ç¦»ç‚¹
 		if(curMin < preMin)
 			return curMin;
 
 	}
 
-	//Ã»ÕÒµ½
+	//æ²¡æ‰¾åˆ°
 	return preMin;
 }
 
-//¶ÔÖÖÈº½øĞĞÆÀ¹À
+//å¯¹ç§ç¾¤è¿›è¡Œè¯„ä¼°
 void MyGA::Evaluate(population *pop)
 {
 	for(int i = 0; i < popSize; ++i)
 		EvaluateInd(pop->ind[i], i);
 }
 
-//¶Ô¸öÌå½øĞĞÆÀ¹À
+//å¯¹ä¸ªä½“è¿›è¡Œè¯„ä¼°
 void MyGA::EvaluateInd(individual &ind, int index )
 {
 	double A = 0.0, B = 0.0, C = 0.0;
 	int n = ind.xPath.size() ;
 
-	//#¶Ô³¤¶ÈµÄÆÀ¼Û
+	//#å¯¹é•¿åº¦çš„è¯„ä»·
 	for ( int j = 1; j < n; j++ ){
 
-		//Ç°Ò»¸öµãºÍµ±Ç°µãÔÚÕ¤¸ñÍ¼ÉÏµÄ×ø±ê
+		//å‰ä¸€ä¸ªç‚¹å’Œå½“å‰ç‚¹åœ¨æ …æ ¼å›¾ä¸Šçš„åæ ‡
 		int x1,x2,y1,y2;
 		x1 = ind.xPath[j-1] % chartWidth ;
 		y1 = ind.xPath[j-1] / chartWidth ;
 		x2 = ind.xPath[j] % chartWidth ;
 		y2 = ind.xPath[j] / chartWidth ;
-		A += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//Á½µãÖ®¼äµÄ¾àÀë
+		A += sqrt( (double)(x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );//ä¸¤ç‚¹ä¹‹é—´çš„è·ç¦»
 	}
 
-	//#¶Ô¸öÌå¹â»¬¶ÈµÄÆÀ¼Û 
+	//#å¯¹ä¸ªä½“å…‰æ»‘åº¦çš„è¯„ä»· 
 	for (int j = 1; j < n-1; j++){
 
-		//Ç°Ò»¸öµãºÍµ±Ç°µãÔÚÕ¤¸ñÍ¼ÉÏµÄ×ø±ê
+		//å‰ä¸€ä¸ªç‚¹å’Œå½“å‰ç‚¹åœ¨æ …æ ¼å›¾ä¸Šçš„åæ ‡
 		double angle, len1,len2;
 		int x1, x2, y1, y2, x3, y3, 
 			vectorx1, vectory1, vectorx2, vectory2 ;
@@ -637,15 +637,15 @@ void MyGA::EvaluateInd(individual &ind, int index )
 		len1 = sqrt((double)(vectorx1*vectorx1+vectory1*vectory1));
 		len2 = sqrt((double)(vectorx2*vectorx2+vectory2*vectory2));
 
-		angle = (vectorx1*vectorx2+vectory1*vectory2)/(len1*len2);//¼ÆËãÏòÁ¿µÄ¼Ğ½Ç
+		angle = (vectorx1*vectorx2+vectory1*vectory2)/(len1*len2);//è®¡ç®—å‘é‡çš„å¤¹è§’
 		angle = acos(angle);
 		B += angle;
 	}
 
-	//#¶Ô¸öÌå°²È«ĞÔµÄÆÀ¼Û
+	//#å¯¹ä¸ªä½“å®‰å…¨æ€§çš„è¯„ä»·
 	for(int j = 0; j < n-1; ++j){
 
-		//µ±Ç°µãÔÚÕ¤¸ñÍ¼ÉÏµÄ×ø±ê
+		//å½“å‰ç‚¹åœ¨æ …æ ¼å›¾ä¸Šçš„åæ ‡
 		int x1, y1, x2, y2, m = 0;
 		double len = 0.0;
 		double L = 0.0;
@@ -672,7 +672,7 @@ void MyGA::EvaluateInd(individual &ind, int index )
 			else if(check(ind,((y2-1)*chartWidth+x2)) && check(ind,(y2*chartWidth+x2+1)))
 				m += 1;
 			L += len;
-			L = L - m * sqrt((double)(chartWidth*chartWidth));//½øĞĞ³Í·£
+			L = L - m * sqrt((double)(chartWidth*chartWidth));//è¿›è¡Œæƒ©ç½š
 			if(L < 0)
 				L = -L;
 
@@ -727,7 +727,7 @@ void MyGA::EvaluateInd(individual &ind, int index )
 				if(x2<x1&&kX<=kY) nextX--;
 				if(y2<y1&&kY<=kX) nextY--;
 			}
-			if(chart[nextY][nextX] == 1)//Èç¹ûÍ¨¹ıÁËÕÏ°­Îï
+			if(chart[nextY][nextX] == 1)//å¦‚æœé€šè¿‡äº†éšœç¢ç‰©
 				D++;
 			curX = nextX; curY = nextY;
 			count++;
@@ -754,9 +754,9 @@ void MyGA::EvaluateInd(individual &ind, int index )
 	else
 		fit[index].C = 1/C;
 
-	ind.obj[2] = A + 100000*D;//³¤¶È
-	ind.obj[1] = B + 100000*D;//Æ½»¬¶È
-	ind.obj[0] = -C + 100000*D;//°²È«ĞÔ
+	ind.obj[2] = A + 100000*D;//é•¿åº¦
+	ind.obj[1] = B + 100000*D;//å¹³æ»‘åº¦
+	ind.obj[0] = -C + 100000*D;//å®‰å…¨æ€§
 
 	return;
 }
@@ -1283,7 +1283,7 @@ void MyGA::deallocate_memory_pop(population *pop, int size)
 {
 	//int i;
 	for( int i = 0; i < size; ++i)
-		delete[] (pop->ind[i].obj);//³ö´íÎó
+		delete[] (pop->ind[i].obj);//å‡ºé”™è¯¯
 	delete[] (pop->ind);
 	return;
 }

@@ -171,14 +171,14 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 		pDC->LineTo(chartWidth*gridWidth+245,originY+25);
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+15);
 		pDC->LineTo(chartWidth*gridWidth+255,originY+25);
-		pDC->TextOut(chartWidth*gridWidth+250,originY,"长度适应度（优）");
+		pDC->TextOut(chartWidth*gridWidth+250,originY,"Distance(Optimized)");
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);//画X轴
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->MoveTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth+5);
 		pDC->MoveTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth-5);
-		pDC->TextOut(chartWidth*gridWidth+155+chartHeight*gridWidth,originY+chartHeight*gridWidth+10,"平滑度适应度（优）");
+		pDC->TextOut(chartWidth*gridWidth+155+chartHeight*gridWidth,originY+chartHeight*gridWidth+10,"Smooth(Optimized)");
 		for(int i=0; i<m_CurPara.pSize;i++)
 			pDC->TextOut(chartWidth*gridWidth+250+fit[i].B*250,originY+chartHeight*gridWidth-fit[i].A*250,"*");//画帕累托图
 	}
@@ -191,13 +191,13 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 		pDC->LineTo(chartWidth*gridWidth+245,originY+25);
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+15);
 		pDC->LineTo(chartWidth*gridWidth+255,originY+25);
-		pDC->TextOut(chartWidth*gridWidth+250,originY,"长度适应度（优）");
+		pDC->TextOut(chartWidth*gridWidth+250,originY,"Distance(Optimized)");
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);//画X轴
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->MoveTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth+5);
 		pDC->MoveTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth-5);
-		pDC->TextOut(chartWidth*gridWidth+155+chartHeight*gridWidth,originY+chartHeight*gridWidth+10,"安全性适应度（优）");
+		pDC->TextOut(chartWidth*gridWidth+155+chartHeight*gridWidth,originY+chartHeight*gridWidth+10,"Safety(Optimized)");
 		for(int i=0; i<m_CurPara.pSize;i++)
 			pDC->TextOut(chartWidth*gridWidth+250+(1-fit[i].C)*250,originY+chartHeight*gridWidth-fit[i].A*250,"*");//画帕累托图
 	}
@@ -226,10 +226,10 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 	
 	int startX = originX+(gridWidth/12);
 	int startY = originY+gridWidth/3;
-	pDC->TextOut(startX,startY,"起始");
+	pDC->TextOut(startX,startY,"Start");
 	int endX = originX+(chartWidth-1)*gridWidth+gridWidth/12;
 	int endY = originY+(chartHeight-1)*gridWidth+gridWidth/3;
-	pDC->TextOut(endX,endY,"目标");
+	pDC->TextOut(endX,endY,"End");
 
 	pDC->SelectObject(m_OldPen);
 	pDC->SelectObject(oldFont);
@@ -491,14 +491,14 @@ void CRobotView::ShowPara(CDC* pDC)
 	VERIFY(font.CreateFontIndirect(&lf));
 	CFont* oldFont = pDC->SelectObject(&font);
 	COLORREF oldColor = pDC->SetTextColor(RGB(100,100,100));
-	pDC->TextOut(startX,startY,"当前种群规模:");
-	pDC->TextOut(startX,startY+30,"当前进化代数:");
-	pDC->TextOut(startX,startY+60,"当前长度值:");
-	pDC->TextOut(startX,startY+90,"当前平滑度值:");
-	pDC->TextOut(startX,startY+120,"当前安全性值:");
-	pDC->TextOut(startX,startY+170,"长度:");
-	pDC->TextOut(startX,startY+200,"平滑度:");
-	pDC->TextOut(startX,startY+230,"安全性:");
+	pDC->TextOut(startX,startY,"Population Size:");
+	pDC->TextOut(startX,startY+30,"Current Generations:");
+	pDC->TextOut(startX,startY+60,"Distance:");
+	pDC->TextOut(startX,startY+90,"Smooth:");
+	pDC->TextOut(startX,startY+120,"Safety:");
+	pDC->TextOut(startX,startY+170,"Distance:");
+	pDC->TextOut(startX,startY+200,"Smooth:");
+	pDC->TextOut(startX,startY+230,"Safety:");
 	pDC->SelectObject(oldFont);
 	
 	 oldColor = pDC->SetTextColor(RGB(255,0,255));
