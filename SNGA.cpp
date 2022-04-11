@@ -21,7 +21,7 @@ CSNGA::~CSNGA(){
 
 
 
-bool CSNGA::update_extreme_point(CSNGAInd& ind)        //uptate the extreme point , that's f up/down尖 
+bool CSNGA::update_extreme_point(CSNGAInd& ind)        //uptate the extreme point , that's f up/down
 {
 	bool bAnchorUpdated = false;
 	bool bTrueNadirUpdated = false;
@@ -140,7 +140,7 @@ void CSNGA::init_population()
 
 	initial_indi_pop.clear();
 
-	for( int n = 0 ; n < popsize ; n++ )//填充剩余的个体
+	for( int n = 0 ; n < popsize ; n++ )// init the rest of individual
 	{
 		if ( sectorpopFlag[ n ] == false )
 		{
@@ -177,7 +177,7 @@ void CSNGA::init_population()
 	//for(int rest_size = initial_rest_indi_pop.size();rest_size>0;rest_size--)
 	//{
 	//	min_angle_difference = 2.0;
-	//	for(int n=0;n< popsize;n++)//填充剩余的个体
+	//	for(int n=0;n< popsize;n++)
 	//	{
 	//		if (sectorpopFlag[ n ] == false)
 	//		{
