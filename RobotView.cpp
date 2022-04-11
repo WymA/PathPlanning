@@ -148,10 +148,10 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 	int chartHeight = m_CurPara.height;
 	gridWidth = min(m_cxWnd/chartWidth,(int)(m_cyWnd*7/8/chartHeight));
 	
-	CPen m_ChartPen1(PS_SOLID,1,RGB(100,100,100));//设置划线的颜色
+	CPen m_ChartPen1(PS_SOLID,1,RGB(100,100,100));//Line color
 	CPen* m_OldPen = pDC->SelectObject (&m_ChartPen1);
 
-	//先画横线
+	//V-line
 	for (int i = 0; i <= chartHeight; i++){
 
 		int x0 = originX;
@@ -165,14 +165,14 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 	if(m_CurPara.smooth)
 	{
 		COLORREF oldColor = pDC->SetTextColor(RGB(0,0,255));
-		pDC->MoveTo(chartWidth*gridWidth+250,originY);//画y轴
+		pDC->MoveTo(chartWidth*gridWidth+250,originY);//Y
 		pDC->LineTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+15);
 		pDC->LineTo(chartWidth*gridWidth+245,originY+25);
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+15);
 		pDC->LineTo(chartWidth*gridWidth+255,originY+25);
 		pDC->TextOut(chartWidth*gridWidth+250,originY,"Distance(Optimized)");
-		pDC->MoveTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);//画X轴
+		pDC->MoveTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);//X
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->MoveTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth+5);
@@ -180,31 +180,31 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth-5);
 		pDC->TextOut(chartWidth*gridWidth+155+chartHeight*gridWidth,originY+chartHeight*gridWidth+10,"Smooth(Optimized)");
 		for(int i=0; i<m_CurPara.pSize;i++)
-			pDC->TextOut(chartWidth*gridWidth+250+fit[i].B*250,originY+chartHeight*gridWidth-fit[i].A*250,"*");//画帕累托图
+			pDC->TextOut(chartWidth*gridWidth+250+fit[i].B*250,originY+chartHeight*gridWidth-fit[i].A*250,"*");//Pareto
 	}
 	else if(m_CurPara.safe)
 	{
 		COLORREF oldColor = pDC->SetTextColor(RGB(0,0,255));
-		pDC->MoveTo(chartWidth*gridWidth+250,originY);//画y轴
+		pDC->MoveTo(chartWidth*gridWidth+250,originY);// Y
 		pDC->LineTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+15);
 		pDC->LineTo(chartWidth*gridWidth+245,originY+25);
 		pDC->MoveTo(chartWidth*gridWidth+250,originY+15);
 		pDC->LineTo(chartWidth*gridWidth+255,originY+25);
 		pDC->TextOut(chartWidth*gridWidth+250,originY,"Distance(Optimized)");
-		pDC->MoveTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);//画X轴
+		pDC->MoveTo(chartWidth*gridWidth+250,originY+chartHeight*gridWidth);// X
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->MoveTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);
 		pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth+5);
 		pDC->MoveTo(chartWidth*gridWidth+250+chartHeight*gridWidth,originY+chartHeight*gridWidth);pDC->LineTo(chartWidth*gridWidth+250+chartHeight*gridWidth-10,originY+chartHeight*gridWidth-5);
 		pDC->TextOut(chartWidth*gridWidth+155+chartHeight*gridWidth,originY+chartHeight*gridWidth+10,"Safety(Optimized)");
 		for(int i=0; i<m_CurPara.pSize;i++)
-			pDC->TextOut(chartWidth*gridWidth+250+(1-fit[i].C)*250,originY+chartHeight*gridWidth-fit[i].A*250,"*");//画帕累托图
+			pDC->TextOut(chartWidth*gridWidth+250+(1-fit[i].C)*250,originY+chartHeight*gridWidth-fit[i].A*250,"*");// Pareto
 	}
 	
-	COLORREF oldColor = pDC->SetTextColor(RGB(100,100,100));//设置文本字体的颜色
-	//画竖线
-	CPen m_ChartPen(PS_SOLID,1,RGB(100,100,100));//设置划线的颜色
+	COLORREF oldColor = pDC->SetTextColor(RGB(100,100,100));//Text color
+	// H-line
+	CPen m_ChartPen(PS_SOLID,1,RGB(100,100,100));//Line color
 	m_OldPen = pDC->SelectObject (&m_ChartPen);
 	for (int i = 0; i <= chartWidth; i++)
 	{
@@ -215,7 +215,7 @@ void CRobotView::DrawChart(CDC* pDC,int originX,int originY)
 		pDC->LineTo(x,y1);
 	}
 
-	//显示起点和终点
+	//Start and End point
 	CFont font;
 	LOGFONT lf;
 	memset(&lf, 0, sizeof(LOGFONT));
@@ -350,8 +350,7 @@ void CRobotView::OnBtpause()
 	{
 		m_pThread->SuspendThread();
 
-		//暂停时对当前最优的序列进行一次插值
-		//使之更加连续
+		//Update one last time when pause, in order to make it continous
 		CRobotDoc* pDoc = GetDocument();
 		MyGA* m_Robot = pDoc->GARoad;
 		Invalidate();
@@ -387,7 +386,7 @@ void CRobotView::OnBtadd()
 		((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);	
 }
 
-void CRobotView::OnBtpara() //调整参数
+void CRobotView::OnBtpara() //Parameter settings
 {
 	// TODO: Add your command handler code here
 	((CMainFrame*)::AfxGetMainWnd())->checkButton(m_CurOpID,FALSE);
@@ -399,7 +398,7 @@ void CRobotView::OnBtpara() //调整参数
 	SetPara m_ChangePara;
 	if (m_ChangePara.DoModal() == IDOK)
 	{
-		//注意参数变了之后，需要对chart的大小进行调整
+		//Adjust size of the chart
 		CRobotDoc* pDoc = GetDocument();
 		AdjustChart(m_ChangePara.m_Height,m_ChangePara.m_Width);
 
@@ -461,13 +460,13 @@ void CRobotView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	CRobotDoc* pDoc = GetDocument();
 
-	if (m_bEraseBlock)//如果处于清除block状态
+	if (m_bEraseBlock)//erase block state
 	{
 		ClearBlock(curBlockULY,curBlockULX);
 		Invalidate();
 		UpdateWindow();
 	}
-	else if (m_bAddBlock)//如果处于添加block状态
+	else if (m_bAddBlock)//erase block state
 	{
 		SetBlock(curBlockULY,curBlockULX);
 		Invalidate();
@@ -514,15 +513,15 @@ void CRobotView::ShowPara(CDC* pDC)
 	pDC->TextOut(startX+120,startY+90,gen);
 	gen.Format(_T("%.3f"),fit[0].C);
 	pDC->TextOut(startX+120,startY+120,gen);
-	CPen m_ChartPen1(PS_SOLID,1,RGB(0,0,255));//设置划线的颜色
+	CPen m_ChartPen1(PS_SOLID,1,RGB(0,0,255));//Line Color
 	pDC->SelectObject (&m_ChartPen1);
 	pDC->MoveTo(startX+120,startY+170);
 	pDC->LineTo(startX+170,startY+170);
-	CPen m_ChartPen2(PS_SOLID,1,RGB(0,255,0));//设置划线的颜色
+	CPen m_ChartPen2(PS_SOLID,1,RGB(0,255,0));//Line Color
 	pDC->SelectObject (&m_ChartPen2);
 	pDC->MoveTo(startX+120,startY+200);
 	pDC->LineTo(startX+170,startY+200);
-	CPen m_ChartPen3(PS_SOLID,1,RGB(255,0,0));//设置划线的颜色
+	CPen m_ChartPen3(PS_SOLID,1,RGB(255,0,0));//Line Color
 	pDC->SelectObject (&m_ChartPen3);
 	pDC->MoveTo(startX+120,startY+230);
 	pDC->LineTo(startX+170,startY+230);

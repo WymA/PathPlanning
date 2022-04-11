@@ -159,8 +159,6 @@ BOOL SetPara::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	// TODO:  在此添加额外的初始化
-
 	if(m_CurPara.length == 1)
 		((CButton *)GetDlgItem(IDC_LENGTH))->SetCheck(TRUE);
 	else
@@ -175,7 +173,6 @@ BOOL SetPara::OnInitDialog()
 		((CButton *)GetDlgItem(IDC_SAFE))->SetCheck(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
-	// 异常: OCX 属性页应返回 FALSE
 }
 
 
